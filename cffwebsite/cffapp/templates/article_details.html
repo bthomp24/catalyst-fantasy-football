@@ -12,6 +12,7 @@
     By: {{ post.author.first_name }}
     {{ post.author.last_name }} 
     <a href="{% url 'update_post' post.pk %}">(Edit Article)</a>
+    <a href="{% url 'delete_post' post.pk %}">(Delete Article)</a>
 </small><br/>
 <hr>
 <br/>
