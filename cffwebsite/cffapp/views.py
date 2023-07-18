@@ -31,8 +31,8 @@ class AddCategoryView(CreateView):
     #fields = ('title', 'body')
 
 def CategoryView(request, cats):
-    category_posts = Post.objects.filter(category=cats)
-    return render(request, 'categories.html', {'cats':cats.title(), 'category_posts':category_posts})
+    category_posts = Post.objects.filter(category__iexact=cats.replace('-', ' ')).order_by('-post_date')
+    return render(request, 'categories.html', {'cats':cats.title().replace('-', ' '), 'category_posts':category_posts})
 
 class UpdatePostView(UpdateView):
     model = Post
