@@ -30,6 +30,10 @@ class AddCategoryView(CreateView):
     fields = '__all__'
     #fields = ('title', 'body')
 
+def CategoryView(request, cats):
+    category_posts = Post.objects.filter(category=cats)
+    return render(request, 'categories.html', {'cats':cats.title(), 'category_posts':category_posts})
+
 class UpdatePostView(UpdateView):
     model = Post
     form_class = EditForm
