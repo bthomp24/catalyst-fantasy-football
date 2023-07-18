@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 class HomeView(ListView):
     model = Post
     template_name = 'home.html'
-    ordering = ['-post_date']
+    ordering = ['-id']
 
     # def get_context_data(self, *args, **kwargs):
     #     cat_menu = Category.objects.all()
@@ -36,6 +36,10 @@ class AddPostView(CreateView):
     #fields = '__all__'
     #fields = ('title', 'body')
 
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
 class AddCategoryView(CreateView):
     model = Category
     #form_class = PostForm
@@ -44,7 +48,7 @@ class AddCategoryView(CreateView):
     #fields = ('title', 'body')
 
 def CategoryView(request, cats):
-    category_posts = Post.objects.filter(category__iexact=cats.replace('-', ' ')).order_by('-post_date')
+    category_posts = Post.objects.filter(category__iexact=cats.replace('-', ' ')).order_by('-id')
     return render(request, 'categories.html', {'cats':cats.title().replace('-', ' '), 'category_posts':category_posts})
 
 # def CategoryListView(request):

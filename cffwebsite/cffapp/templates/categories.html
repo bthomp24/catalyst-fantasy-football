@@ -13,7 +13,7 @@
                 <div class="card h-100 text-bg-dark mb-3">
                     <img src="..." class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title"><a href="{% url 'article_detail' post.pk %}">{{ post.title }}</a> - </h5>
+                        <h5 class="card-title"><a href="{% url 'article_detail' post.pk %}">{{ post.title }}</a></h5>
                         <p class="card-text">{{ post.body|slice:":100"|safe }}</p>
                     </div>
                     <div class="card-footer text-center">
