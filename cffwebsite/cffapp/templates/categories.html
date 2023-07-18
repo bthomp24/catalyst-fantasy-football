@@ -6,22 +6,32 @@
 {% if category_posts %}
     <h1>{{ cats }} Category</h1>
 
-    <ul>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+
         {% for post in category_posts %}
-            <li><a href="{% url 'article_detail' post.pk %}">{{ post.title }}</a> - 
-            {{ post.author.first_name }} 
-            {{ post.author.last_name }} - 
-            {{ post.post_date }} 
-            {% if user.is_authenticated %}
-                <small>
-                    - <a href="{% url 'update_post' post.pk %}">(Edit)</a>
-                    <a href="{% url 'delete_post' post.pk %}">(Delete)</a>
-                </small>
-            {% endif %}
-            <br/>
-            {{ post.body|slice:":100"|safe }}</li>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'article_detail' post.pk %}">{{ post.title }}</a> - </h5>
+                        <p class="card-text">{{ post.body|slice:":100"|safe }}</p>
+                    </div>
+                    <div class="'card-footer">
+                        <a href="{% url 'category' post.category|slugify %}">{{ post.category }}</a> - 
+                            {{ post.author.first_name }} 
+                            {{ post.author.last_name }} - 
+                            {{ post.post_date }}
+                        {% if user.is_authenticated %}
+                            <small>
+                                - <a href="{% url 'update_post' post.pk %}">(Edit)</a>
+                                <a href="{% url 'delete_post' post.pk %}">(Delete)</a>
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 
 {% else %}
 <h2>Sorry this page deos not exist!</h2>
