@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post, Category
+from .models import *
 
 #choices = [('podcast', 'podcast'), ('rankings', 'rankings'), ('advice', 'advice'),]
 cats = Category.objects.all().values_list('name', 'name')
@@ -31,4 +31,21 @@ class EditForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'title_tag': forms.TextInput(attrs={'class': 'form-control'}),
             'body': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+class DraftForm(forms.ModelForm):
+    #name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        return name
+
+    name = forms.CharField(max_length=255)
+
+    class Meta:
+        model = Player
+        fields = ('name',)
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
         }

@@ -28,5 +28,17 @@ class Post(models.Model):
     def get_absolute_url(self):
         #return reverse('article_detail', args=(str(self.id)))
         return reverse('home')
-
-
+    
+class Player(models.Model):
+    rank = models.IntegerField()
+    name = models.CharField(max_length=255)
+    team = models.CharField(max_length=255)
+    position = models.CharField(max_length=255)
+    drafted = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return str(self.rank) + ' | ' + self.name + ' | ' + self.team + ' | ' + self.position
+    
+    def get_absolute_url(self):
+        #return reverse('article_detail', args=(str(self.id)))
+        return reverse('rankings')

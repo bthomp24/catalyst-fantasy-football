@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, Category
-from .forms import PostForm, EditForm
+from .models import Post, Category, Player
+from .forms import *
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+
 
 #def home(request):
 #    return render(request, 'home.html', {})
@@ -65,3 +67,40 @@ class DeletePostView(DeleteView):
     model = Post
     template_name = 'delete_post.html'
     success_url = reverse_lazy('home')
+
+class RankingsView(ListView):
+    model = Player
+    template_name = 'rankings.html'
+    context_object_name = 'players'
+
+    def get_context_data(self, **kwargs):
+        context = super(RankingsView, self).get_context_data(**kwargs)
+        context['form'] = DraftForm()
+        return context
+    
+    def post(self, request):
+        form = DraftForm(request.POST)
+        if form.is_valid():
+            player_name = form.clean_name()
+            pl = Player.objects.get(name__iexact=player_name)
+            pl.drafted = True
+            pl.save()
+            #return redirect(reverse('rankings.html'))
+            return HttpResponseRedirect(request.path_info)
+
+# def RankingsView(request):
+    
+
+#     if request.method == 'POST':
+#         form = DraftForm(request.POST)
+#         if form.is_valid():
+#             player_name = form.cleaned_data['name']
+#             pl = Player.objects.get(name=player_name)
+#             pl.drafted = True
+
+#             return redirect(reverse('rankings.html'))
+#     else:
+#         form = DraftForm()
+
+#     players = Player.objects.all().order_by('id')
+#     return render(request, 'rankings.html', { 'players':players})

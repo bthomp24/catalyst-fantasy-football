@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<h1>Rankings</h1>
+</br>
+{% if user.is_superuser %}
+    <div class="form-group">
+        <div class="d-flex">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_table }}
+                <button class="btn btn-secondary">Draft</button>
+            </form>
+        </div>
+    </div>
+    </br></br>
+{% endif %}
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Rank</th>
+        <th scope="col">Player</th>
+        <th scope="col">Team</th>
+        <th scope="col">Position</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for player in players %}
+        {% if player.drafted == True %}
+            <tr class="table-danger text-decoration-line-through">
+                <th scope="row">{{player.rank}}</th>
+                <td>{{player.name}}</td>
+                <td>{{player.team}}</td>
+                <td>{{player.position}}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <th scope="row">{{player.rank}}</th>
+                <td>{{player.name}}</td>
+                <td>{{player.team}}</td>
+                <td>{{player.position}}</td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+
+
+
+{% endblock %}
