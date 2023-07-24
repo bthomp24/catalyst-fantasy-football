@@ -88,19 +88,12 @@ class RankingsView(ListView):
             #return redirect(reverse('rankings.html'))
             return HttpResponseRedirect(request.path_info)
 
-# def RankingsView(request):
-    
+def clear_draft(request):
+    players = Player.objects.all()
+    for player in players:
+        if player.drafted:
+            player.drafted = False
+            player.save()
 
-#     if request.method == 'POST':
-#         form = DraftForm(request.POST)
-#         if form.is_valid():
-#             player_name = form.cleaned_data['name']
-#             pl = Player.objects.get(name=player_name)
-#             pl.drafted = True
-
-#             return redirect(reverse('rankings.html'))
-#     else:
-#         form = DraftForm()
-
-#     players = Player.objects.all().order_by('id')
-#     return render(request, 'rankings.html', { 'players':players})
+    #return redirect(RankingsView)
+    return HttpResponseRedirect('rankings')
