@@ -30,11 +30,12 @@ class Post(models.Model):
         return reverse('home')
     
 class Player(models.Model):
-    rank = models.IntegerField()
+    rank = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     team = models.CharField(max_length=255)
-    position = models.CharField(max_length=255)
+    position = models.CharField(max_length=255, choices=(('QB', 'QB'), ('RB', 'RB'), ('WR', 'WR'), ('TE', 'TE'), ('K', 'K'), ('DST', 'DST')))
     drafted = models.BooleanField(default=False)
+    positional_rank = models.CharField(max_length=255)
     
     def __str__(self):
         return str(self.rank) + ' | ' + self.name + ' | ' + self.team + ' | ' + self.position

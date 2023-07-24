@@ -1,11 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django_filters.views import FilterView
+from .filters import PositionFilter
 from .models import Post, Category, Player
 from .forms import *
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
+from django import template
 
-
+register = template.Library()
 #def home(request):
 #    return render(request, 'home.html', {})
 
@@ -68,9 +71,11 @@ class DeletePostView(DeleteView):
     template_name = 'delete_post.html'
     success_url = reverse_lazy('home')
 
-class RankingsView(ListView):
+class RankingsView(FilterView):
     model = Player
     template_name = 'rankings.html'
+    paginate_by = 50
+    filterset_class = PositionFilter
     context_object_name = 'players'
 
     def get_context_data(self, **kwargs):
@@ -87,6 +92,8 @@ class RankingsView(ListView):
             pl.save()
             #return redirect(reverse('rankings.html'))
             return HttpResponseRedirect(request.path_info)
+        
+    
 
 def clear_draft(request):
     players = Player.objects.all()
@@ -95,5 +102,4 @@ def clear_draft(request):
             player.drafted = False
             player.save()
 
-    #return redirect(RankingsView)
     return HttpResponseRedirect('rankings')

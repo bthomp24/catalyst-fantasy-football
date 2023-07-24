@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'cffapp',
     'members',
     'import_export',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
