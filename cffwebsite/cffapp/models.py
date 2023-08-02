@@ -35,7 +35,8 @@ class Player(models.Model):
     team = models.CharField(max_length=255)
     position = models.CharField(max_length=255, choices=(('QB', 'QB'), ('RB', 'RB'), ('WR', 'WR'), ('TE', 'TE'), ('K', 'K'), ('DST', 'DST')))
     drafted = models.BooleanField(default=False)
-    positional_rank = models.CharField(max_length=255)
+    positional_rank = models.CharField(max_length=255, default="")
+    adp = models.FloatField(default=0)
     
     def __str__(self):
         return str(self.rank) + ' | ' + self.name + ' | ' + self.team + ' | ' + self.position

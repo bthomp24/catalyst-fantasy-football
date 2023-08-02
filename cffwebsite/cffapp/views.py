@@ -23,6 +23,11 @@ class HomeView(ListView):
     #     context["cat_menu"] = cat_menu
     #     return context
 
+class ArticleListView(ListView):
+    model = Post
+    template_name = 'articles.html'
+    ordering = ['-id']
+
 
 class ArticleDetailView(DetailView):
     model = Post

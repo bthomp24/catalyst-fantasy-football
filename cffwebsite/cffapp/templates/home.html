@@ -3,39 +3,9 @@
 
 {% block content %}
 
-<h1>Posts</h1>
+<h1>Home</h1>
 
-<div class="row row-cols-1 row-cols-md-3 g-4">
 
-    {% for post in object_list %}
-    <div class="col">
-        <div class="card h-100 text-bg-dark mb-3">
-          <img src="..." class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title"><a href="{% url 'article_detail' post.pk %}">{{ post.title }}</a> 
-                
-                
-            </h5>
-            <p class="card-text">{{ post.body|slice:":100"|safe }}</p>
-          </div>
-          <div class="card-footer text-center">
-                <a href="{% url 'category' post.category|slugify %}">{{ post.category }}</a> -  
-                By: {{ post.author.first_name }} 
-                {{ post.author.last_name }} - 
-                {{ post.post_date }}
-                {% if user.is_authenticated %}
-                    {% if user.id == post.author.id %}
-                        <small>
-                            - <a href="{% url 'update_post' post.pk %}">(Edit)</a>
-                            <a href="{% url 'delete_post' post.pk %}">(Delete)</a>
-                        </small>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-      </div>
-    {% endfor %}
-</div>
 
 
 

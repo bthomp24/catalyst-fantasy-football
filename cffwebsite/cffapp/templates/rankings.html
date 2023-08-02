@@ -6,21 +6,21 @@
 <h1>Rankings</h1>
 </br>
 {% if user.is_superuser %}
-    <div class="form-group">
+    <div class="form-group sticky-sm-top">
         <div class="d-flex">
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_table }}
-                <button class="btn btn-secondary">Draft</button>
+                <button class="btn btn-success">Draft</button>
             </form>
-            <a href="{% url 'clear_draft' %}" class="btn btn-secondary">Clear Draft</a>
+            <a href="{% url 'clear_draft' %}" class="btn btn-success" role="button">Clear Draft</a>
         </div>
     </div>
     </br></br>
 {% endif %}
-<div class="container">
+<!-- <div class="container"> -->
     <div class="row">
-        <a class="text-dark text-sm mb-1" href="{% url 'rankings' %}">x Clear Filters</a>
+        <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Clear Filters</a>
         <form method="get">
             <div style="display: grid"> 
                 {% for field in filter.form %}
@@ -30,34 +30,37 @@
                     </div>
                 {% endfor %}
             </div>
-            <button type="submit" class="btn btn-dark mb-3 mt-2">Filter</button>
+            <button type="submit" class="btn btn-success mb-3 mt-2">Filter</button>
         </form>
         <!-- <div class="col-sm-4 table-responsive"> -->
-            <h2 class="sub-header text-center">Overall Player Rankings</h2>
+            <h2 class="sub-header text-center">ESPN ADP</h2>
             <table class="table">
-                <thead>
-                <tr>
+                <thead class="sticky-sm-top">
+                <tr class="table-dark">
                     <th scope="col">Rank</th>
                     <th scope="col">Player</th>
                     <th scope="col">Team</th>
                     <th scope="col">Position</th>
+                    <th scope="col">ADP</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody class="table-group-divider">
                 {% for player in filter.qs %}
                     {% if player.drafted == True %}
                         <tr class="table-danger text-decoration-line-through">
-                            <th scope="row">{{player.rank}}</th>
+                            <th scope="row">{{forloop.counter}}</th>
                             <td>{{player.name}}</td>
                             <td>{{player.team}}</td>
-                            <td>{{player.positional_rank}}</td>
+                            <td>{{player.position}}</td>
+                            <td>{{player.adp}}</td>
                         </tr>
                     {% else %}
-                        <tr>
-                            <th scope="row">{{player.rank}}</th>
+                        <tr class="table-dark">
+                            <th scope="row">{{forloop.counter}}</th>
                             <td>{{player.name}}</td>
                             <td>{{player.team}}</td>
-                            <td>{{player.positional_rank}}</td>
+                            <td>{{player.position}}</td>
+                            <td>{{player.adp}}</td>
                         </tr>
                     {% endif %}
                 {% endfor %}
@@ -194,6 +197,6 @@
         </div> -->
 
     </div>
-</div>
+<!-- </div> -->
 
 {% endblock %}
