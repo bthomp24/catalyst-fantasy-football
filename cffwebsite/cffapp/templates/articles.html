@@ -1,16 +1,75 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
-<h1>Articles</h1>
 
-<div class="row row-cols-1 row-cols-md-3 g-4">
+
+<section>
+    <div class="container">
+        <div>
+            <h1 class="text-center">
+                Articles
+            </h1>
+        </div>
+        <br>
+        <br>
+        <div class="content">
+            <div class="container">
+                {% load static %}
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% for post in object_list %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <a class="card-img-top" href="{% url 'article_detail' post.pk %}">
+                            <img src="{% static 'football_on_field.jpg' %}" width="100%" height="200"/>
+                            </a>
+                            <div class="card-body">
+                                <h4 class="card-title text-center">
+                                    <a href="{% url 'article_detail' post.pk %}" 
+                                    style="color: #000; text-decoration: none !important; 
+                                    font-weight: 700;"> 
+                                    {{ post.title }} </a>
+                                </h4>
+                                <p class="card-text">{{ post.body|slice:":125"|safe }}</p>
+                            </div>
+                            <div class="card-footer text-center">  
+                                By: {{ post.author.first_name }} 
+                                {{ post.author.last_name }} - 
+                                {{ post.post_date }}
+                                {% if user.is_authenticated %}
+                                    {% if user.id == post.author.id %}
+                                        <small>
+                                            - <a href="{% url 'update_post' post.pk %}">(Edit)</a>
+                                            <a href="{% url 'delete_post' post.pk %}">(Delete)</a>
+                                        </small>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="card-footer text-center"> 
+                                Category - 
+                                <a href="{% url 'category' post.category|slugify %}">{{ post.category }}</a> 
+                            </div>
+                            <!-- <div class="card-read-more">
+                                <a href="{% url 'article_detail' post.pk %}" class="btn btn-link btn-block">
+                                    Read More
+                                </a>
+                            </div> -->
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+<!-- <div class="row row-cols-1 row-cols-md-3 g-4">
 
     {% for post in object_list %}
     <div class="col">
         <div class="card h-100 text-bg-dark mb-3">
-          <img src="..." class="card-img-top" alt="...">
+          <img src="{% static 'football_on_field.jpg' %}" class="card-img-top" alt="football image placeholder">
           <div class="card-body">
             <h5 class="card-title"><a href="{% url 'article_detail' post.pk %}">{{ post.title }}</a> 
                 
@@ -35,8 +94,6 @@
         </div>
       </div>
     {% endfor %}
-</div>
+</div> -->
 
 
-
-{% endblock %}
