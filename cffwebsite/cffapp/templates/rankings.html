@@ -6,7 +6,7 @@
 <h1 class="heading text-white text-center">Rankings</h1>
 </br>
 {% if user.is_superuser %}
-    <div class="form-group sticky-sm-top">
+    <div class="form-group">
         <div class="d-flex">
             <form method="POST">
                 {% csrf_token %}
@@ -67,134 +67,6 @@
                 </tbody>
             </table>
         <!-- </div> -->
-
-        <!-- <div class="col-sm-3 table-responsive">
-            <h2 class="sub-header text-center">QB Rankings</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Rank</th>
-                    <th scope="col">Player</th>
-                    <th scope="col">Team</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for player in players %}
-                    {% if player.position == 'QB' %}
-                        {% if player.drafted == True %}
-                            <tr class="table-danger text-decoration-line-through">
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-sm-3 table-responsive">
-            <h2 class="sub-header text-center">RB Rankings</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Rank</th>
-                    <th scope="col">Player</th>
-                    <th scope="col">Team</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for player in players %}
-                    {% if player.position == 'RB' %}
-                        {% if player.drafted == True %}
-                            <tr class="table-danger text-decoration-line-through">
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-sm-3 table-responsive">
-            <h2 class="sub-header text-center">WR Rankings</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Rank</th>
-                    <th scope="col">Player</th>
-                    <th scope="col">Team</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for player in players %}
-                    {% if player.position == 'WR' %}
-                        {% if player.drafted == True %}
-                            <tr class="table-danger text-decoration-line-through">
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-sm-3 table-responsive">
-            <h2 class="sub-header text-center">TE Rankings</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Rank</th>
-                    <th scope="col">Player</th>
-                    <th scope="col">Team</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for player in players %}
-                    {% if player.position == 'TE' %}
-                        {% if player.drafted == True %}
-                            <tr class="table-danger text-decoration-line-through">
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <th scope="row">{{player.positional_rank}}</th>
-                                <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
-                            </tr>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div> -->
 
     </div>
 <!-- </div> -->

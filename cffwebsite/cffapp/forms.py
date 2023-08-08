@@ -11,13 +11,15 @@ for item in cats:
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('title', 'title_tag', 'category', 'body')
+        fields = ('title', 'title_tag', 'category', 'img_path', 'podcast_path', 'body')
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'title_tag': forms.TextInput(attrs={'class': 'form-control'}),
             #'author': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(choices=cat_list, attrs={'class': 'form-control'}),
+            'img_path': forms.TextInput(attrs={'class': 'form-control'}),
+            'podcast_path': forms.TextInput(attrs={'class': 'form-control'}),
             'body': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
@@ -25,11 +27,13 @@ class PostForm(forms.ModelForm):
 class EditForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('title', 'title_tag', 'body')
+        fields = ('title', 'title_tag', 'img_path', 'podcast_path', 'body')
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'title_tag': forms.TextInput(attrs={'class': 'form-control'}),
+            'img_path': forms.TextInput(attrs={'class': 'form-control'}),
+            'podcast_path': forms.TextInput(attrs={'class': 'form-control'}),
             'body': forms.Textarea(attrs={'class': 'form-control'}),
         }
 

@@ -6,7 +6,7 @@
 
 
 {% block content %}
-
+{% load static %}
 <h1>{{ post.title }}</h1>
 <small>
     By: {{ post.author.first_name }}
@@ -19,11 +19,28 @@
         {% endif %}
     {% endif %}
 </small><br/>
-<hr>
+<br/>
+{% if post.img_path %}
+    <img src="{% static post.img_path %}">
+{% endif %}
+<!-- <audio controls>
+    <source src="{% static 'Draft_Order_Podcast_2023.mp3' %}" type="audio/mpeg">
+</audio> -->
+{% if post.podcast_path %}
+<br/>
+<br/>
+    <audio controls>
+        <source src="{% static post.podcast_path %}" type="audio/mpeg">
+    </audio>
+{% endif %}
+<br/>
+<br/>
 <br/>
 {{ post.body|safe }}
 
 <br/><br/>
 <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+<br/>
+<br/>
 
 {% endblock %}

@@ -1,11 +1,9 @@
 from django.urls import path
-#from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-#from . import views
-from .views import HomeView, ArticleListView, ArticleDetailView, AddPostView, UpdatePostView, DeletePostView, AddCategoryView, CategoryView, RankingsView, clear_draft
+from .views import *
 
 urlpatterns = [
     #path('', views.home, name="home"),
-    path('', HomeView.as_view(), name="home"),
+    path('', HomeView, name="home"),
     path('articles', ArticleListView.as_view(), name="articles"),
     path('article/<int:pk>', ArticleDetailView.as_view(), name='article_detail'),
     path('add_post/', AddPostView.as_view(), name='add_post'),
@@ -17,3 +15,4 @@ urlpatterns = [
     path('rankings/', RankingsView.as_view(), name="rankings"),
     path('clear_draft', clear_draft, name='clear_draft'),
 ]
+
