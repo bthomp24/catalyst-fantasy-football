@@ -2,26 +2,26 @@
 
 
 {% block content %}
+{% load static %}
 
-<h1 class="text-center">Home</h1>
-
-
-
-
-
+<!-- <h1 class="text-center">Home</h1> -->
+<br><br>
+<div>
+    <img src="{% static 'Catalyst_Fantasy_Football.jpg' %}" width="100%" height="50%"/>
+</div>
+<br><br><br><br><br><br>
 <section>
     <div class="container">
-        <br>
-        <br>
+        <h1 class="text-center">Recent Articles</h1>
+        <br><br>
         <div class="content">
             <div class="container">
-                {% load static %}
                 <div class="row row-cols-1 row-cols-md-3 g-4">
                     {% for post in last_posts %}
                     <div class="col">
                         <div class="card h-100">
                             <a class="card-img-top" href="{% url 'article_detail' post.pk %}">
-                            <img src="{% static post.img_path %}" width="100%" height="200"/>
+                            <img src="{% static post.img_path %}" width="100%" height="100%" class="img-thumbnail"/>
                             </a>
                             <div class="card-body">
                                 <h4 class="card-title text-center">
@@ -63,7 +63,6 @@
         </div>
     </div>
 </section>
-
 
 {% endblock %}
 
