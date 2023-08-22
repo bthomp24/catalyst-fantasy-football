@@ -24,13 +24,13 @@ SECRET_KEY = 'django-insecure-a*c!tn1thhmzrcisn6#3txk65wuc=d#c3qofgp&*urfnew&nea
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = False
+DEBUG = False
 
-# ALLOWED_HOSTS = ['CatalystFF.pythonanywhere.com']
+ALLOWED_HOSTS = ['CatalystFF.pythonanywhere.com']
 
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 
 # Application definition
