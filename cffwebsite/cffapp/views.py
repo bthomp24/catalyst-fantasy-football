@@ -95,11 +95,15 @@ class RankingsView(FilterView):
         form = DraftForm(request.POST)
         if form.is_valid():
             player_name = form.clean_name()
-            pl = Player.objects.get(name__iexact=player_name)
-            pl.drafted = True
-            pl.save()
+            if Player.objects.filter(name__iexact=player_name).exists():
+                pl = Player.objects.get(name__iexact=player_name)
+                pl.drafted = True
+                pl.save()
+            else:
+                print("Player not found")
             #return redirect(reverse('rankings.html'))
             return HttpResponseRedirect(request.path_info)
+        
         
     
 
