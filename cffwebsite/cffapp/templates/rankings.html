@@ -40,9 +40,9 @@
                     <tr class="table-dark">
                         <th scope="col">Rank</th>
                         <th scope="col">Player</th>
-                        <th scope="col">Team</th>
                         <th scope="col">Position</th>
-                        <th scope="col">ADP</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Bye Week</th>
                     </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -51,17 +51,17 @@
                             <tr class="table-danger text-decoration-line-through">
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
                                 <td>{{player.position}}</td>
-                                <td>{{player.adp}}</td>
+                                <td>{{player.team}}</td>
+                                <td>{{player.bye}}</td>
                             </tr>
                         {% else %}
                             <tr class="table-dark">
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
-                                <td>{{player.team}}</td>
                                 <td>{{player.position}}</td>
-                                <td>{{player.adp}}</td>
+                                <td>{{player.team}}</td>
+                                <td>{{player.bye}}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}

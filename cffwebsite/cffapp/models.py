@@ -40,6 +40,7 @@ class Player(models.Model):
     drafted = models.BooleanField(default=False)
     positional_rank = models.CharField(max_length=255, default="")
     adp = models.FloatField(default=0)
+    bye = models.IntegerField(default=0)
     
     def __str__(self):
         return str(self.rank) + ' | ' + self.name + ' | ' + self.team + ' | ' + self.position
