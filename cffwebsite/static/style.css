@@ -7,7 +7,107 @@
   display:inline-block;
 }
 
+.position-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
 
+.position-box {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.position-box input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.position-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    border: 3px solid;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin: 0;
+    user-select: none;
+}
+
+/* Position-specific colors with more specific selectors */
+.position-box.qb .position-label { 
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+.position-box.qb input:checked + .position-label {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+.position-box.rb .position-label {
+    border-color: #4ecdc4;
+    color: #4ecdc4;
+}
+.position-box.rb input:checked + .position-label {
+    background-color: #4ecdc4;
+    color: white;
+}
+
+.position-box.wr .position-label {
+    border-color: #45b7d1;
+    color: #45b7d1;
+}
+.position-box.wr input:checked + .position-label {
+    background-color: #45b7d1;
+    color: white;
+}
+
+.position-box.te .position-label {
+    border-color: #96ceb4;
+    color: #96ceb4;
+}
+.position-box.te input:checked + .position-label {
+    background-color: #96ceb4;
+    color: white;
+}
+
+.position-box.k .position-label {
+    border-color: #d4a373;
+    color: #d4a373;
+}
+.position-box.k input:checked + .position-label {
+    background-color: #d4a373;
+    color: white;
+}
+
+.position-box.dst .position-label {
+    border-color: #9b5de5;
+    color: #9b5de5;
+}
+.position-box.dst input:checked + .position-label {
+    background-color: #9b5de5;
+    color: white;
+}
+
+.position-box:hover .position-label {
+    opacity: 0.8;
+}
 /* html,
 body {
   -moz-box-sizing: border-box;

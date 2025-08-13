@@ -18,8 +18,50 @@
     </div>
     </br></br>
 {% endif %}
-<!-- <div class="container"> -->
+
     <div class="row">
+        
+        <div class="mb-3">
+            <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
+        </div>
+        <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
+    
+    <!-- Add position filter checkboxes -->
+        <div class="position-filters mb-3">
+            <label class="position-box qb">
+                <input type="checkbox" class="position-checkbox" value="QB" checked>
+                <span class="position-label">QB</span>
+            </label>
+            <label class="position-box rb">
+                <input type="checkbox" class="position-checkbox" value="RB" checked>
+                <span class="position-label">RB</span>
+            </label>
+            <label class="position-box wr">
+                <input type="checkbox" class="position-checkbox" value="WR" checked>
+                <span class="position-label">WR</span>
+            </label>
+            <label class="position-box te">
+                <input type="checkbox" class="position-checkbox" value="TE" checked>
+                <span class="position-label">TE</span>
+            </label>
+            <label class="position-box k">
+                <input type="checkbox" class="position-checkbox" value="K" checked>
+                <span class="position-label">K</span>
+            </label>
+            <label class="position-box dst">
+                <input type="checkbox" class="position-checkbox" value="DST" checked>
+                <span class="position-label">DST</span>
+            </label>
+        </div>
+
+    <!-- Remove or comment out the existing filter form if you want to use only checkboxes -->
+    <!-- <form method="get">... </form> -->
+
+    
+        <!-- <div class="mb-3">
+            <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
+        
+        </div>
         <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Clear Filters</a>
         <form method="get">
             <div style="display: grid"> 
@@ -31,7 +73,9 @@
                 {% endfor %}
             </div>
             <button type="submit" class="btn btn-success mb-3 mt-2">Filter</button>
-        </form>
+        </form> -->
+
+
         <!-- <div class="col-sm-4 table-responsive"> -->
             <!-- <h2 class="sub-header text-center">ESPN ADP</h2> -->
             <div class="table-wrapper">
@@ -41,6 +85,7 @@
                         <th scope="col">Rank</th>
                         <th scope="col">Player</th>
                         <th scope="col">Position</th>
+                        <!-- <th scope="col">Positional Rank</th> -->
                         <th scope="col">Team</th>
                         <th scope="col">Bye Week</th>
                     </tr>
@@ -52,6 +97,7 @@
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
                                 <td>{{player.position}}</td>
+                                <!-- <td>{{player.positional_rank}}</td> -->
                                 <td>{{player.team}}</td>
                                 <td>{{player.bye}}</td>
                             </tr>
@@ -60,6 +106,7 @@
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
                                 <td>{{player.position}}</td>
+                                <!-- <td>{{player.positional_rank}}</td> -->
                                 <td>{{player.team}}</td>
                                 <td>{{player.bye}}</td>
                             </tr>
@@ -72,5 +119,73 @@
 
     </div>
 <!-- </div> -->
+
+<script>
+document.getElementById('playerSearch').addEventListener('keyup', function() {
+    filterTable();
+});
+
+const positionCheckboxes = document.querySelectorAll('.position-checkbox');
+const wasAllChecked = Array.from(positionCheckboxes)
+            .every(cb => cb.checked);
+
+positionCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function(e) {
+        // Check if all checkboxes were checked before the change
+        
+            
+        if (wasAllChecked && !this.checked) {
+            // If all were checked and user is unchecking one,
+            // uncheck all except this one
+            this.checked = true;  // Keep this one checked
+            positionCheckboxes.forEach(cb => {
+                if (cb !== this) {
+                    cb.checked = false;  // Keep all others unchecked
+                }
+            });
+        }
+        
+        filterTable();
+    });
+});
+
+function filterTable() {
+    const searchText = document.getElementById('playerSearch').value.toLowerCase();
+    const checkedPositions = Array.from(positionCheckboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+    
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    tableRows.forEach(row => {
+        const playerName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+        const position = row.querySelector('td:nth-child(3)')?.textContent || '';
+        
+        const matchesSearch = playerName.includes(searchText);
+        const matchesPosition = checkedPositions.length === 0 || checkedPositions.includes(position);
+        
+        row.style.display = (matchesSearch && matchesPosition) ? '' : 'none';
+    });
+}
+
+filterTable();
+</script>
+
+
+<!-- <script>
+document.getElementById('playerSearch').addEventListener('keyup', function() {
+    let searchText = this.value.toLowerCase();
+    let tableRows = document.querySelectorAll('tbody tr');
+    
+    tableRows.forEach(row => {
+        let playerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        if (playerName.includes(searchText)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script> -->
 
 {% endblock %}
