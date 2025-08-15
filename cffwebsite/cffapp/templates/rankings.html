@@ -55,7 +55,7 @@
         </div>
 
         <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
-        
+
     <!-- Remove or comment out the existing filter form if you want to use only checkboxes -->
     <!-- <form method="get">... </form> -->
 
@@ -89,7 +89,7 @@
                         <th scope="col">Position</th>
                         <!-- <th scope="col">Positional Rank</th> -->
                         <th scope="col">Team</th>
-                        <th scope="col">Bye Week</th>
+                        <!-- <th scope="col">Bye Week</th> -->
                     </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -101,7 +101,7 @@
                                 <td>{{player.position}}</td>
                                 <!-- <td>{{player.positional_rank}}</td> -->
                                 <td>{{player.team}}</td>
-                                <td>{{player.bye}}</td>
+                                <!-- <td>{{player.bye}}</td> -->
                             </tr>
                         {% else %}
                             <tr class="table-dark">
@@ -110,7 +110,7 @@
                                 <td>{{player.position}}</td>
                                 <!-- <td>{{player.positional_rank}}</td> -->
                                 <td>{{player.team}}</td>
-                                <td>{{player.bye}}</td>
+                                <!-- <td>{{player.bye}}</td> -->
                             </tr>
                         {% endif %}
                     {% endfor %}
