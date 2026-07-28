@@ -128,25 +128,23 @@ document.getElementById('playerSearch').addEventListener('keyup', function() {
 });
 
 const positionCheckboxes = document.querySelectorAll('.position-checkbox');
-const wasAllChecked = Array.from(positionCheckboxes)
-            .every(cb => cb.checked);
 
 positionCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function(e) {
-        // Check if all checkboxes were checked before the change
-        
-            
-        if (wasAllChecked && !this.checked) {
-            // If all were checked and user is unchecking one,
-            // uncheck all except this one
-            this.checked = true;  // Keep this one checked
-            positionCheckboxes.forEach(cb => {
-                if (cb !== this) {
-                    cb.checked = false;  // Keep all others unchecked
-                }
-            });
+    checkbox.addEventListener('change', function() {
+        const others = Array.from(positionCheckboxes).filter(cb => cb !== this);
+        const wasAllCheckedBefore = !this.checked && others.every(cb => cb.checked);
+        const noneCheckedAfter = Array.from(positionCheckboxes).every(cb => !cb.checked);
+
+        if (wasAllCheckedBefore) {
+            // This box was just unchecked, and everything else is still checked
+            // → re-check it, uncheck everything else
+            this.checked = true;
+            others.forEach(cb => cb.checked = false);
+        } else if (noneCheckedAfter) {
+            positionCheckboxes.forEach(cb => cb.checked = true);
         }
-        
+        // otherwise, let the normal toggle stand
+
         filterTable();
     });
 });
@@ -154,18 +152,18 @@ positionCheckboxes.forEach(checkbox => {
 function filterTable() {
     const searchText = document.getElementById('playerSearch').value.toLowerCase();
     const checkedPositions = Array.from(positionCheckboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
-    
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+
     const tableRows = document.querySelectorAll('tbody tr');
-    
+
     tableRows.forEach(row => {
         const playerName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
         const position = row.querySelector('td:nth-child(3)')?.textContent || '';
-        
+
         const matchesSearch = playerName.includes(searchText);
         const matchesPosition = checkedPositions.length === 0 || checkedPositions.includes(position);
-        
+
         row.style.display = (matchesSearch && matchesPosition) ? '' : 'none';
     });
 }
