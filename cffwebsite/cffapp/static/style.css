@@ -154,7 +154,9 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
-
+.hidden{
+  display:none;
+}
 
 /* html,
 body {

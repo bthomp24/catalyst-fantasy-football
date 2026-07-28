@@ -97,10 +97,10 @@
                     <tr class="table-dark">
                         <th scope="col">Rank</th>
                         <th scope="col">Player</th>
-                        <th scope="col">Position</th>
-                        <!-- <th scope="col">Positional Rank</th> -->
+                        <th scope="col" class="hidden">Position</th>
+                        <th scope="col">Positional Rank</th>
                         <th scope="col">Team</th>
-                        <!-- <th scope="col">Bye Week</th> -->
+                        <th scope="col">Bye Week</th>
                         {% if user.is_superuser %}
                         <th scope="col">Draft</th>
                         {% endif %}
@@ -112,10 +112,10 @@
                             <tr class="table-danger text-decoration-line-through">
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
-                                <td>{{player.position}}</td>
-                                <!-- <td>{{player.positional_rank}}</td> -->
+                                <td class="hidden">{{player.position}}</td>
+                                <td>{{player.positional_rank}}</td>
                                 <td>{{player.team}}</td>
-                                <!-- <td>{{player.bye}}</td> -->
+                                <td>{{player.bye}}</td>
                                 {% if user.is_superuser %}
                                 <td>
                                     <form method="POST" class="draft-form">
@@ -130,10 +130,10 @@
                             <tr class="table-dark">
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
-                                <td>{{player.position}}</td>
-                                <!-- <td>{{player.positional_rank}}</td> -->
+                                <td class="hidden">{{player.position}}</td>
+                                <td>{{player.positional_rank}}</td>
                                 <td>{{player.team}}</td>
-                                <!-- <td>{{player.bye}}</td> -->
+                                <td>{{player.bye}}</td>
                                 {% if user.is_superuser %}
                                 <td>
                                     <form method="POST" class="draft-form">
