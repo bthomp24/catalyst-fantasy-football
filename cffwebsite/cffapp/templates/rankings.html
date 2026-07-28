@@ -5,7 +5,9 @@
 
 <h1 class="heading text-white text-center">Rankings</h1>
 </br>
-{% if user.is_superuser %}
+    
+
+<!-- {% if user.is_superuser %}
     <div class="form-group">
         <div class="d-flex">
             <form method="POST">
@@ -17,9 +19,17 @@
         </div>
     </div>
     </br></br>
-{% endif %}
+{% endif %} -->
+
+    {% if user.is_superuser %}
+        <a href="{% url 'clear_draft' %}" class="btn btn-success" role="button">Clear Draft</a>
+    {% endif %}
+    </br>
+    </br>
+    
 
     <div class="row">
+    
         
         <div class="mb-3">
             <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
@@ -56,6 +66,7 @@
 
         <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
 
+        
     <!-- Remove or comment out the existing filter form if you want to use only checkboxes -->
     <!-- <form method="get">... </form> -->
 
