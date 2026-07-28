@@ -97,7 +97,7 @@ class RankingsView(FilterView):
             player_name = form.clean_name()
             if Player.objects.filter(name__iexact=player_name).exists():
                 pl = Player.objects.get(name__iexact=player_name)
-                pl.drafted = True
+                pl.drafted = not pl.drafted
                 pl.save()
             else:
                 print("Player not found")

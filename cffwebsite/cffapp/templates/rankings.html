@@ -90,6 +90,9 @@
                         <!-- <th scope="col">Positional Rank</th> -->
                         <th scope="col">Team</th>
                         <!-- <th scope="col">Bye Week</th> -->
+                        {% if user.is_superuser %}
+                        <th scope="col">Draft</th>
+                        {% endif %}
                     </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -102,6 +105,15 @@
                                 <!-- <td>{{player.positional_rank}}</td> -->
                                 <td>{{player.team}}</td>
                                 <!-- <td>{{player.bye}}</td> -->
+                                {% if user.is_superuser %}
+                                <td>
+                                    <form method="POST" class="draft-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="name" value="{{ player.name }}">
+                                        <button type="submit" class="draft-btn drafted" title="Undo draft for {{ player.name }}" aria-label="Undo draft for {{ player.name }}">&#8635;</button>
+                                    </form>
+                                </td>
+                                {% endif %}
                             </tr>
                         {% else %}
                             <tr class="table-dark">
@@ -111,6 +123,15 @@
                                 <!-- <td>{{player.positional_rank}}</td> -->
                                 <td>{{player.team}}</td>
                                 <!-- <td>{{player.bye}}</td> -->
+                                {% if user.is_superuser %}
+                                <td>
+                                    <form method="POST" class="draft-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="name" value="{{ player.name }}">
+                                        <button type="submit" class="draft-btn" title="Mark {{ player.name }} as drafted" aria-label="Draft {{ player.name }}">&times;</button>
+                                    </form>
+                                </td>
+                                {% endif %}
                             </tr>
                         {% endif %}
                     {% endfor %}

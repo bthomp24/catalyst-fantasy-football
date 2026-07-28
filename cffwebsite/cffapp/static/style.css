@@ -108,6 +108,40 @@
 .position-box:hover .position-label {
     opacity: 0.8;
 }
+
+.draft-form {
+    display: inline-block;
+    margin: 0;
+}
+.draft-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+.draft-btn:hover {
+    background-color: #a71d2a;
+}
+.draft-btn:active {
+    transform: scale(0.95);
+}
+.draft-btn.drafted {
+    background-color: #28a745;
+    font-size: 14px;
+}
+.draft-btn.drafted:hover {
+    background-color: #1c7c31;
+}
+
 /* html,
 body {
   -moz-box-sizing: border-box;
