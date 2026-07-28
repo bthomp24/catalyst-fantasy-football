@@ -114,33 +114,47 @@
     margin: 0;
 }
 .draft-btn {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: none;
-    background-color: #dc3545;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, #e64a5a, #dc3545);
     color: #fff;
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: 700;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background 0.15s ease-in-out;
 }
 .draft-btn:hover {
-    background-color: #a71d2a;
+    background: linear-gradient(145deg, #f05a6a, #c82333);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
 }
 .draft-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.draft-btn:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 .draft-btn.drafted {
-    background-color: #28a745;
-    font-size: 14px;
+    background: linear-gradient(145deg, #34ce57, #28a745);
+    font-size: 15px;
 }
 .draft-btn.drafted:hover {
-    background-color: #1c7c31;
+    background: linear-gradient(145deg, #3ddb61, #1c7c31);
 }
+.draft-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 
 /* html,
 body {
