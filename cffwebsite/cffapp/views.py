@@ -5,7 +5,7 @@ from .filters import PositionFilter
 from .models import Post, Category, Player
 from .forms import *
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django import template
 
 register = template.Library()
@@ -92,17 +92,27 @@ class RankingsView(FilterView):
         return context
     
     def post(self, request):
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
         form = DraftForm(request.POST)
+
         if form.is_valid():
             player_name = form.clean_name()
             if Player.objects.filter(name__iexact=player_name).exists():
                 pl = Player.objects.get(name__iexact=player_name)
                 pl.drafted = not pl.drafted
                 pl.save()
+                if is_ajax:
+                    return JsonResponse({'success': True, 'name': pl.name, 'drafted': pl.drafted})
             else:
                 print("Player not found")
+                if is_ajax:
+                    return JsonResponse({'success': False, 'error': 'Player not found'}, status=404)
             #return redirect(reverse('rankings.html'))
             return HttpResponseRedirect(request.path_info)
+
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': 'Invalid form submission'}, status=400)
+        return HttpResponseRedirect(request.path_info)
         
         
     

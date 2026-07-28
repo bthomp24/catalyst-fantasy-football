@@ -190,6 +190,55 @@ function filterTable() {
 }
 
 filterTable();
+
+document.querySelectorAll('.draft-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('.draft-btn');
+        submitBtn.disabled = true;
+
+        const formData = new FormData(this);
+
+        fetch(window.location.pathname + window.location.search, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Draft toggle failed:', data.error);
+                submitBtn.disabled = false;
+                return;
+            }
+
+            const row = this.closest('tr');
+
+            if (data.drafted) {
+                row.classList.remove('table-dark');
+                row.classList.add('table-danger', 'text-decoration-line-through');
+                submitBtn.classList.add('drafted');
+                submitBtn.innerHTML = '&#8635;';
+                submitBtn.title = `Undo draft for ${data.name}`;
+                submitBtn.setAttribute('aria-label', `Undo draft for ${data.name}`);
+            } else {
+                row.classList.remove('table-danger', 'text-decoration-line-through');
+                row.classList.add('table-dark');
+                submitBtn.classList.remove('drafted');
+                submitBtn.innerHTML = '&times;';
+                submitBtn.title = `Mark ${data.name} as drafted`;
+                submitBtn.setAttribute('aria-label', `Draft ${data.name}`);
+            }
+
+            submitBtn.disabled = false;
+        })
+        .catch(err => {
+            console.error('Draft toggle request failed:', err);
+            submitBtn.disabled = false;
+        });
+    });
+});
 </script>
 
 
