@@ -15,7 +15,7 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-success">
         <div class="container-fluid">
           {% load static %}
-          <a class="navbar-brand" href="{% url 'home' %}">
+          <a class="navbar-brand" href="{% url 'rankings' %}">
             <img src="{% static 'ESPN_Logo.PNG' %}" alt="Football Logo" width="50" height="50">
             Catalyst Fantasy Football
           </a>
@@ -24,44 +24,18 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'rankings' %}">Rankings</a>
-              </li>
-              <!-- <li class="nav-item">
-                <a class="nav-link" href="{% url 'articles' %}">Articles</a>
-              </li> -->
-             
-              <!-- {% if cat_menu %}
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Categories
-                </a>
-                <ul class="dropdown-menu">
-                  {% for item in cat_menu %}
-                  <li><a class="dropdown-item" href="{% url 'category' item|slugify %}">{{ item }}</a></li>
-                  {% endfor %}
-                </ul>
-              </li>
-              {% endif %} -->
+
+
             </ul>
             <ul class="navbar-nav ms-auto">
             
               {% if user.is_authenticated %}
-
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'add_post' %}">Add Post</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'add_category' %}">Add Category</a>
-                </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                 </li>
 
               {% else %}
-                <!-- <li class="nav-item">
-                  <a class="nav-link" href="{% url 'register' %}">Register</a>
-                </li> -->
+                
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'login' %}">Login</a>
                 </li>
@@ -69,10 +43,7 @@
               {% endif %}
               
             </ul>
-            <!-- <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success" type="submit">Search</button>
-            </form> -->
+            
           </div>
         </div>
       </nav>

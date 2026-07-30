@@ -4,7 +4,7 @@ from import_export.admin import ImportExportModelAdmin
 
 # admin.site.register(Post)
 # admin.site.register(Category)
-@admin.register(Post, Category, Player)
+@admin.register(Player)
 class ViewAdmin(ImportExportModelAdmin):
     pass
 

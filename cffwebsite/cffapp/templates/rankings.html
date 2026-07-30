@@ -6,20 +6,6 @@
 <!-- <h1 class="heading text-white text-center">Rankings</h1> -->
     
 
-<!-- {% if user.is_superuser %}
-    <div class="form-group">
-        <div class="d-flex">
-            <form method="POST">
-                {% csrf_token %}
-                {{ form.as_table }}
-                <button class="btn btn-success">Draft</button>
-            </form>
-            <a href="{% url 'clear_draft' %}" class="btn btn-success" role="button">Clear Draft</a>
-        </div>
-    </div>
-    </br></br>
-{% endif %} -->
-
     {% if user.is_superuser %}
         <a href="{% url 'clear_draft' %}" class="btn btn-success" role="button">Clear Draft</a>
         </br>
@@ -67,30 +53,6 @@
         <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
 
         
-    <!-- Remove or comment out the existing filter form if you want to use only checkboxes -->
-    <!-- <form method="get">... </form> -->
-
-    
-        <!-- <div class="mb-3">
-            <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
-        
-        </div>
-        <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Clear Filters</a>
-        <form method="get">
-            <div style="display: grid"> 
-                {% for field in filter.form %}
-                    <div id="form-field-{{ forloop.counter0 }}">
-                        {{ field.label_tag }}
-                        {{ field }}
-                    </div>
-                {% endfor %}
-            </div>
-            <button type="submit" class="btn btn-success mb-3 mt-2">Filter</button>
-        </form> -->
-
-
-        <!-- <div class="col-sm-4 table-responsive"> -->
-            <!-- <h2 class="sub-header text-center">ESPN ADP</h2> -->
             <div class="table-wrapper">
                 <table class="table table-fixed">
                     <thead class="sticky-top">
@@ -296,22 +258,5 @@ function pollDraftStatus() {
 
 setInterval(pollDraftStatus, POLL_INTERVAL_MS);
 </script>
-
-
-<!-- <script>
-document.getElementById('playerSearch').addEventListener('keyup', function() {
-    let searchText = this.value.toLowerCase();
-    let tableRows = document.querySelectorAll('tbody tr');
-    
-    tableRows.forEach(row => {
-        let playerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-        if (playerName.includes(searchText)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-});
-</script> -->
 
 {% endblock %}
