@@ -4,7 +4,6 @@
 {% block content %}
 
 <h1 class="heading text-white text-center">Rankings</h1>
-</br>
     
 
 <!-- {% if user.is_superuser %}
@@ -29,40 +28,41 @@
     
 
     <div class="row">
-    
-        
-        <div class="mb-3">
-            <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
-        </div>
-        
-    
+
+        <div class="search-and-filters mb-3">
+            <div class="search-wrapper">
+                <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
+            </div>
+
     <!-- Add position filter checkboxes -->
-        <div class="position-filters mb-3">
-            <label class="position-box qb">
-                <input type="checkbox" class="position-checkbox" value="QB" checked>
-                <span class="position-label">QB</span>
-            </label>
-            <label class="position-box rb">
-                <input type="checkbox" class="position-checkbox" value="RB" checked>
-                <span class="position-label">RB</span>
-            </label>
-            <label class="position-box wr">
-                <input type="checkbox" class="position-checkbox" value="WR" checked>
-                <span class="position-label">WR</span>
-            </label>
-            <label class="position-box te">
-                <input type="checkbox" class="position-checkbox" value="TE" checked>
-                <span class="position-label">TE</span>
-            </label>
-            <label class="position-box k">
-                <input type="checkbox" class="position-checkbox" value="K" checked>
-                <span class="position-label">K</span>
-            </label>
-            <label class="position-box dst">
-                <input type="checkbox" class="position-checkbox" value="DST" checked>
-                <span class="position-label">DST</span>
-            </label>
+            <div class="position-filters">
+                <label class="position-box qb">
+                    <input type="checkbox" class="position-checkbox" value="QB" checked>
+                    <span class="position-label">QB</span>
+                </label>
+                <label class="position-box rb">
+                    <input type="checkbox" class="position-checkbox" value="RB" checked>
+                    <span class="position-label">RB</span>
+                </label>
+                <label class="position-box wr">
+                    <input type="checkbox" class="position-checkbox" value="WR" checked>
+                    <span class="position-label">WR</span>
+                </label>
+                <label class="position-box te">
+                    <input type="checkbox" class="position-checkbox" value="TE" checked>
+                    <span class="position-label">TE</span>
+                </label>
+                <label class="position-box k">
+                    <input type="checkbox" class="position-checkbox" value="K" checked>
+                    <span class="position-label">K</span>
+                </label>
+                <label class="position-box dst">
+                    <input type="checkbox" class="position-checkbox" value="DST" checked>
+                    <span class="position-label">DST</span>
+                </label>
+            </div>
         </div>
+
 
         <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
 
