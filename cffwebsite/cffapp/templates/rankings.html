@@ -113,7 +113,7 @@
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
                                 <td class="hidden">{{player.position}}</td>
-                                <td>{{player.positional_rank}}</td>
+                                <td><span class="pos-rank {{ player.position|lower }}">{{player.positional_rank}}</span></td>
                                 <td>{{player.team}}</td>
                                 <td>{{player.bye}}</td>
                                 {% if user.is_superuser %}
@@ -131,7 +131,7 @@
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
                                 <td class="hidden">{{player.position}}</td>
-                                <td>{{player.positional_rank}}</td>
+                                <td><span class="pos-rank {{ player.position|lower }}">{{player.positional_rank}}</span></td>
                                 <td>{{player.team}}</td>
                                 <td>{{player.bye}}</td>
                                 {% if user.is_superuser %}

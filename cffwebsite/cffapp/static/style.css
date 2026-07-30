@@ -1,4 +1,3 @@
-
 /* @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,900); */
 
 
@@ -65,38 +64,38 @@
 
 /* Position-specific colors with more specific selectors */
 .position-box.qb .position-label { 
-    border-color: #ff6b6b;
-    color: #ff6b6b;
+    border-color: #b700ff;
+    color: #b700ff;
 }
 .position-box.qb input:checked + .position-label {
-    background-color: #ff6b6b;
+    background-color: #b700ff;
     color: white;
 }
 
 .position-box.rb .position-label {
-    border-color: #4ecdc4;
-    color: #4ecdc4;
+    border-color: #0b9454;
+    color: #0b9454;
 }
 .position-box.rb input:checked + .position-label {
-    background-color: #4ecdc4;
+    background-color: #0b9454;
     color: white;
 }
 
 .position-box.wr .position-label {
-    border-color: #45b7d1;
-    color: #45b7d1;
+    border-color: #cf5802;
+    color: #cf5802;
 }
 .position-box.wr input:checked + .position-label {
-    background-color: #45b7d1;
+    background-color: #cf5802;
     color: white;
 }
 
 .position-box.te .position-label {
-    border-color: #96ceb4;
-    color: #96ceb4;
+    border-color: #146ad4;
+    color: #146ad4;
 }
 .position-box.te input:checked + .position-label {
-    background-color: #96ceb4;
+    background-color: #146ad4;
     color: white;
 }
 
@@ -110,16 +109,46 @@
 }
 
 .position-box.dst .position-label {
-    border-color: #9b5de5;
-    color: #9b5de5;
+    border-color: #d04141;
+    color: #d04141;
 }
 .position-box.dst input:checked + .position-label {
-    background-color: #9b5de5;
+    background-color: #d04141;
     color: white;
 }
 
 .position-box:hover .position-label {
     opacity: 0.8;
+}
+
+.pos-rank {
+    display: inline-block;
+    box-sizing: border-box;
+    font-weight: bold;
+    font-size: 0.85em;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 6px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.pos-rank.qb {
+    background-color: #b700ff;
+}
+.pos-rank.rb {
+    background-color: #0b9454;
+}
+.pos-rank.wr {
+    background-color: #cf5802;
+}
+.pos-rank.te {
+    background-color: #146ad4;
+}
+.pos-rank.k {
+    background-color: #d4a373;
+}
+.pos-rank.dst {
+    background-color: #d04141;
 }
 
 .draft-form {
