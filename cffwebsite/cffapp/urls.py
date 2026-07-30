@@ -13,6 +13,6 @@ urlpatterns = [
     path('category/<str:cats>/', CategoryView, name='category'),
     #path('category-list/', CategoryListView, name='category_list'),
     path('rankings/', RankingsView.as_view(), name="rankings"),
+    path('rankings/poll/', poll_draft_status, name='poll_draft_status'),
     path('clear_draft', clear_draft, name='clear_draft'),
 ]
-

@@ -109,7 +109,7 @@
                     <tbody class="table-group-divider">
                     {% for player in filter.qs %}
                         {% if player.drafted == True %}
-                            <tr class="table-danger text-decoration-line-through">
+                            <tr class="table-danger text-decoration-line-through" data-player-name="{{ player.name }}" data-drafted="true">
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
                                 <td class="hidden">{{player.position}}</td>
@@ -127,7 +127,7 @@
                                 {% endif %}
                             </tr>
                         {% else %}
-                            <tr class="table-dark">
+                            <tr class="table-dark" data-player-name="{{ player.name }}" data-drafted="false">
                                 <th scope="row">{{forloop.counter}}</th>
                                 <td>{{player.name}}</td>
                                 <td class="hidden">{{player.position}}</td>
@@ -202,6 +202,36 @@ function filterTable() {
 
 filterTable();
 
+// Shared function to apply a drafted/undrafted visual state to a row.
+// Used by both the manual draft-toggle click and the background poller,
+// so the two never disagree about what "drafted" should look like.
+function applyDraftState(row, drafted, name) {
+    row.dataset.drafted = drafted ? 'true' : 'false';
+
+    if (drafted) {
+        row.classList.remove('table-dark');
+        row.classList.add('table-danger', 'text-decoration-line-through');
+    } else {
+        row.classList.remove('table-danger', 'text-decoration-line-through');
+        row.classList.add('table-dark');
+    }
+
+    const submitBtn = row.querySelector('.draft-btn');
+    if (!submitBtn) return; // non-superuser rows have no button
+
+    if (drafted) {
+        submitBtn.classList.add('drafted');
+        submitBtn.innerHTML = '&#8635;';
+        submitBtn.title = `Undo draft for ${name}`;
+        submitBtn.setAttribute('aria-label', `Undo draft for ${name}`);
+    } else {
+        submitBtn.classList.remove('drafted');
+        submitBtn.innerHTML = '&times;';
+        submitBtn.title = `Mark ${name} as drafted`;
+        submitBtn.setAttribute('aria-label', `Draft ${name}`);
+    }
+}
+
 document.querySelectorAll('.draft-form').forEach(form => {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -225,23 +255,7 @@ document.querySelectorAll('.draft-form').forEach(form => {
             }
 
             const row = this.closest('tr');
-
-            if (data.drafted) {
-                row.classList.remove('table-dark');
-                row.classList.add('table-danger', 'text-decoration-line-through');
-                submitBtn.classList.add('drafted');
-                submitBtn.innerHTML = '&#8635;';
-                submitBtn.title = `Undo draft for ${data.name}`;
-                submitBtn.setAttribute('aria-label', `Undo draft for ${data.name}`);
-            } else {
-                row.classList.remove('table-danger', 'text-decoration-line-through');
-                row.classList.add('table-dark');
-                submitBtn.classList.remove('drafted');
-                submitBtn.innerHTML = '&times;';
-                submitBtn.title = `Mark ${data.name} as drafted`;
-                submitBtn.setAttribute('aria-label', `Draft ${data.name}`);
-            }
-
+            applyDraftState(row, data.drafted, data.name);
             submitBtn.disabled = false;
         })
         .catch(err => {
@@ -250,6 +264,37 @@ document.querySelectorAll('.draft-form').forEach(form => {
         });
     });
 });
+
+// --- Polling for draft updates from other users ---
+const POLL_INTERVAL_MS = 3000;
+const POLL_URL = "{% url 'poll_draft_status' %}";
+
+function pollDraftStatus() {
+    // Skip polling while the tab isn't visible, to avoid piling up
+    // unnecessary requests when the page is in a background tab.
+    if (document.hidden) return;
+
+    fetch(POLL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.json())
+        .then(data => {
+            const players = data.players || {};
+
+            document.querySelectorAll('tbody tr[data-player-name]').forEach(row => {
+                const name = row.dataset.playerName;
+                if (!(name in players)) return;
+
+                const serverDrafted = players[name];
+                const currentDrafted = row.dataset.drafted === 'true';
+
+                if (serverDrafted !== currentDrafted) {
+                    applyDraftState(row, serverDrafted, name);
+                }
+            });
+        })
+        .catch(err => console.error('Draft status poll failed:', err));
+}
+
+setInterval(pollDraftStatus, POLL_INTERVAL_MS);
 </script>
 
 

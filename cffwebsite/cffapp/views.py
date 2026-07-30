@@ -125,3 +125,8 @@ def clear_draft(request):
             player.save()
 
     return HttpResponseRedirect('rankings')
+
+def poll_draft_status(request):
+    players = Player.objects.values('name', 'drafted')
+    draft_status = {p['name']: p['drafted'] for p in players}
+    return JsonResponse({'players': draft_status})
