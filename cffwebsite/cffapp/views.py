@@ -183,6 +183,8 @@ def assign_draft_pick(request):
         'player_name': player.name,
         'position': player.position,
         'positional_rank': player.positional_rank,
+        'team': player.team,
+        'bye': player.bye,
     })
 
 
@@ -238,7 +240,8 @@ def available_players(request):
 @user_passes_test(lambda u: u.is_superuser)
 def poll_draft_board(request):
     picks = DraftPick.objects.values(
-        'id', 'player_id', 'player__name', 'player__position', 'player__positional_rank'
+        'id', 'player_id', 'player__name', 'player__position',
+        'player__positional_rank', 'player__team', 'player__bye',
     )
     pick_data = {
         p['id']: {
@@ -246,6 +249,8 @@ def poll_draft_board(request):
             'player_name': p['player__name'],
             'position': p['player__position'],
             'positional_rank': p['player__positional_rank'],
+            'team': p['player__team'],
+            'bye': p['player__bye'],
         }
         for p in picks
     }

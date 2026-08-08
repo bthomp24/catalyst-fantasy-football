@@ -242,7 +242,7 @@
 }
 
 .team-name-input {
-    width: 110px;
+    width: 130px;
     text-align: center;
     font-weight: bold;
     background-color: #343a40;
@@ -259,9 +259,9 @@
 
 .draft-cell {
     position: relative;
-    width: 110px;
-    height: 70px;
-    min-width: 110px;
+    width: 130px;
+    height: 78px;
+    min-width: 130px;
     padding: 4px !important;
     border-radius: 6px;
     background-color: #343a40;
@@ -273,11 +273,30 @@
     background-color: #495057;
 }
 .draft-cell.filled {
-    background-color: #3a4750;
     cursor: pointer;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 .draft-cell.filled:hover {
-    background-color: #46545e;
+    filter: brightness(1.12);
+}
+
+.draft-cell.filled.qb {
+    background-color: #b700ff;
+}
+.draft-cell.filled.rb {
+    background-color: #0b9454;
+}
+.draft-cell.filled.wr {
+    background-color: #cf5802;
+}
+.draft-cell.filled.te {
+    background-color: #146ad4;
+}
+.draft-cell.filled.k {
+    background-color: #d4a373;
+}
+.draft-cell.filled.dst {
+    background-color: #d04141;
 }
 
 .pick-number {
@@ -285,8 +304,11 @@
     top: 3px;
     right: 6px;
     font-size: 0.7em;
-    color: #adb5bd;
+    color: rgba(255, 255, 255, 0.8);
     font-weight: bold;
+}
+.draft-cell.empty .pick-number {
+    color: #adb5bd;
 }
 
 .pick-body {
@@ -300,14 +322,25 @@
 }
 
 .pick-player-name {
-    font-size: 0.8em;
-    font-weight: 600;
+    font-size: 0.82em;
+    font-weight: 700;
     color: #fff;
     line-height: 1.1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 100px;
+    max-width: 118px;
+}
+
+.pick-meta {
+    font-size: 0.68em;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 118px;
 }
 
 .pick-empty {
@@ -316,7 +349,7 @@
 }
 
 .cell-search-input {
-    width: 95px;
+    width: 115px;
     font-size: 0.75em;
     padding: 2px 4px;
     border-radius: 4px;

@@ -30,7 +30,7 @@
                     <th scope="row" class="round-number-cell">{{ row.round_number }}</th>
                     {% for pick in row.cells %}
                     <td
-                        class="draft-cell {% if pick.player %}filled{% else %}empty{% endif %}"
+                        class="draft-cell {% if pick.player %}filled {{ pick.player.position|lower }}{% else %}empty{% endif %}"
                         data-pick-id="{{ pick.id }}"
                         data-overall="{{ pick.overall_pick }}"
                         data-round="{{ row.round_number }}"
@@ -40,13 +40,15 @@
                         data-player-name="{{ pick.player.name }}"
                         data-player-position="{{ pick.player.position }}"
                         data-player-positional-rank="{{ pick.player.positional_rank }}"
+                        data-player-team="{{ pick.player.team }}"
+                        data-player-bye="{{ pick.player.bye }}"
                         {% endif %}
                     >
                         <span class="pick-number">{{ pick.overall_pick }}</span>
                         <div class="pick-body">
                             {% if pick.player %}
                                 <span class="pick-player-name">{{ pick.player.name }}</span>
-                                <span class="pos-rank {{ pick.player.position|lower }}">{{ pick.player.positional_rank }}</span>
+                                <span class="pick-meta">{{ pick.player.positional_rank }} &middot; {{ pick.player.team }} &middot; Bye {{ pick.player.bye }}</span>
                             {% else %}
                                 <span class="pick-empty">+</span>
                             {% endif %}
@@ -121,28 +123,37 @@
     });
 
     // --- Cell rendering helpers ---
+    const POSITION_CLASSES = ['qb', 'rb', 'wr', 'te', 'k', 'dst'];
+
     function renderFilledCell(cell, player) {
-        cell.classList.remove('empty');
+        cell.classList.remove('empty', ...POSITION_CLASSES);
         cell.classList.add('filled');
+
+        const pos = (player.position || '').toLowerCase();
+        if (pos) cell.classList.add(pos);
+
         cell.dataset.playerId = player.player_id ?? player.id;
         cell.dataset.playerName = player.player_name ?? player.name;
         cell.dataset.playerPosition = player.position;
         cell.dataset.playerPositionalRank = player.positional_rank;
+        cell.dataset.playerTeam = player.team;
+        cell.dataset.playerBye = player.bye;
 
         const body = cell.querySelector('.pick-body');
-        const pos = (player.position || '').toLowerCase();
         body.innerHTML =
             '<span class="pick-player-name">' + (player.player_name ?? player.name) + '</span>' +
-            '<span class="pos-rank ' + pos + '">' + player.positional_rank + '</span>';
+            '<span class="pick-meta">' + player.positional_rank + ' &middot; ' + player.team + ' &middot; Bye ' + player.bye + '</span>';
     }
 
     function renderEmptyCell(cell) {
-        cell.classList.remove('filled');
+        cell.classList.remove('filled', ...POSITION_CLASSES);
         cell.classList.add('empty');
         delete cell.dataset.playerId;
         delete cell.dataset.playerName;
         delete cell.dataset.playerPosition;
         delete cell.dataset.playerPositionalRank;
+        delete cell.dataset.playerTeam;
+        delete cell.dataset.playerBye;
 
         const body = cell.querySelector('.pick-body');
         body.innerHTML = '<span class="pick-empty">+</span>';
@@ -270,36 +281,37 @@
 
     // When the side panel's own draft button is used, immediately reflect
     // the resulting pick on the board grid instead of waiting for the poll.
+    // The rankings toggle response only includes name/drafted, so we pull
+    // position/positional_rank/team/bye from the matching panel row.
     window.onRankingsPanelDraftChange = function(data) {
         if (!data.pick) return;
         const cell = document.querySelector('.draft-cell[data-pick-id="' + data.pick.pick_id + '"]');
         if (!cell) return;
 
-        if (data.drafted) {
-            renderFilledCell(cell, {
-                player_id: null,
-                player_name: data.name,
-                position: cell.dataset.playerPosition,
-                positional_rank: cell.dataset.playerPositionalRank,
-            });
-            // player_position/positional_rank aren't included in the
-            // rankings toggle response, so pull them from the matching
-            // panel row instead.
-            const row = document.querySelector(
-                '.table-wrapper tbody tr[data-player-name="' + CSS.escape(data.name) + '"]'
-            );
-            if (row) {
-                const posCell = row.querySelector('.pos-rank');
-                if (posCell) {
-                    const body = cell.querySelector('.pick-body');
-                    body.innerHTML =
-                        '<span class="pick-player-name">' + data.name + '</span>' +
-                        '<span class="' + posCell.className + '">' + posCell.textContent + '</span>';
-                }
-            }
-        } else {
+        if (!data.drafted) {
             renderEmptyCell(cell);
+            return;
         }
+
+        const row = document.querySelector(
+            '.table-wrapper tbody tr[data-player-name="' + CSS.escape(data.name) + '"]'
+        );
+        if (!row) return;
+
+        const cells = row.querySelectorAll('td');
+        const position = cells[1]?.textContent.trim() || '';
+        const positionalRank = cells[2]?.textContent.trim() || '';
+        const team = cells[3]?.textContent.trim() || '';
+        const bye = cells[4]?.textContent.trim() || '';
+
+        renderFilledCell(cell, {
+            player_id: null,
+            player_name: data.name,
+            position: position,
+            positional_rank: positionalRank,
+            team: team,
+            bye: bye,
+        });
     };
 
     // --- Poll the board for changes made by other users ---
