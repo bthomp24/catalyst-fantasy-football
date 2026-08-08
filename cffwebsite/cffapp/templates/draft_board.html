@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="heading text-white text-center">Draft Board</h1>
+
+<div class="draft-board-layout">
+
+    <div class="draft-board-wrapper">
+        <table class="table table-dark draft-board-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="round-header-cell">Round</th>
+                    {% for team in teams %}
+                    <th scope="col" class="team-header-cell">
+                        <input
+                            type="text"
+                            class="team-name-input"
+                            data-team-id="{{ team.id }}"
+                            value="{{ team.name }}"
+                            maxlength="100"
+                        >
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rounds %}
+                <tr>
+                    <th scope="row" class="round-number-cell">{{ row.round_number }}</th>
+                    {% for pick in row.cells %}
+                    <td
+                        class="draft-cell {% if pick.player %}filled{% else %}empty{% endif %}"
+                        data-pick-id="{{ pick.id }}"
+                        data-overall="{{ pick.overall_pick }}"
+                        data-round="{{ row.round_number }}"
+                        data-team-id="{{ pick.team_id }}"
+                        {% if pick.player %}
+                        data-player-id="{{ pick.player.id }}"
+                        data-player-name="{{ pick.player.name }}"
+                        data-player-position="{{ pick.player.position }}"
+                        data-player-positional-rank="{{ pick.player.positional_rank }}"
+                        {% endif %}
+                    >
+                        <span class="pick-number">{{ pick.overall_pick }}</span>
+                        <div class="pick-body">
+                            {% if pick.player %}
+                                <span class="pick-player-name">{{ pick.player.name }}</span>
+                                <span class="pos-rank {{ pick.player.position|lower }}">{{ pick.player.positional_rank }}</span>
+                            {% else %}
+                                <span class="pick-empty">+</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="draft-board-side-panel">
+        {% include 'player_panel.html' with players=players %}
+    </div>
+
+</div>
+
+<script>
+(function() {
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+    const CSRF_TOKEN = getCookie('csrftoken');
+
+    const ASSIGN_URL = "{% url 'assign_draft_pick' %}";
+    const CLEAR_URL = "{% url 'clear_draft_pick' %}";
+    const UPDATE_TEAM_URL = "{% url 'update_team_name' %}";
+    const AVAILABLE_PLAYERS_URL = "{% url 'available_players' %}";
+    const POLL_BOARD_URL = "{% url 'poll_draft_board' %}";
+    const POLL_INTERVAL_MS = 3000;
+
+    function postForm(url, data) {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => formData.append(key, value));
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': CSRF_TOKEN,
+            },
+            body: formData,
+        }).then(res => res.json());
+    }
+
+    // --- Team name editing ---
+    document.querySelectorAll('.team-name-input').forEach(input => {
+        let previousValue = input.value;
+
+        input.addEventListener('change', function() {
+            const newValue = this.value.trim();
+            if (!newValue) {
+                this.value = previousValue;
+                return;
+            }
+            postForm(UPDATE_TEAM_URL, { team_id: this.dataset.teamId, name: newValue })
+                .then(data => {
+                    if (data.success) {
+                        previousValue = data.name;
+                        this.value = data.name;
+                    } else {
+                        console.error('Team name update failed:', data.error);
+                        this.value = previousValue;
+                    }
+                })
+                .catch(err => {
+                    console.error('Team name update request failed:', err);
+                    this.value = previousValue;
+                });
+        });
+    });
+
+    // --- Cell rendering helpers ---
+    function renderFilledCell(cell, player) {
+        cell.classList.remove('empty');
+        cell.classList.add('filled');
+        cell.dataset.playerId = player.player_id ?? player.id;
+        cell.dataset.playerName = player.player_name ?? player.name;
+        cell.dataset.playerPosition = player.position;
+        cell.dataset.playerPositionalRank = player.positional_rank;
+
+        const body = cell.querySelector('.pick-body');
+        const pos = (player.position || '').toLowerCase();
+        body.innerHTML =
+            '<span class="pick-player-name">' + (player.player_name ?? player.name) + '</span>' +
+            '<span class="pos-rank ' + pos + '">' + player.positional_rank + '</span>';
+    }
+
+    function renderEmptyCell(cell) {
+        cell.classList.remove('filled');
+        cell.classList.add('empty');
+        delete cell.dataset.playerId;
+        delete cell.dataset.playerName;
+        delete cell.dataset.playerPosition;
+        delete cell.dataset.playerPositionalRank;
+
+        const body = cell.querySelector('.pick-body');
+        body.innerHTML = '<span class="pick-empty">+</span>';
+    }
+
+    // --- Click-to-draft: empty cell opens a small searchable dropdown ---
+    let openSearchCell = null;
+
+    function closeOpenSearch() {
+        if (!openSearchCell) return;
+        const cell = openSearchCell;
+        openSearchCell = null;
+        if (cell.classList.contains('empty')) {
+            renderEmptyCell(cell);
+        }
+    }
+
+    function openCellSearch(cell) {
+        if (openSearchCell === cell) return;
+        closeOpenSearch();
+        openSearchCell = cell;
+
+        const body = cell.querySelector('.pick-body');
+        body.innerHTML =
+            '<input type="text" class="cell-search-input" placeholder="Search player...">' +
+            '<div class="cell-search-results"></div>';
+
+        const input = body.querySelector('.cell-search-input');
+        const results = body.querySelector('.cell-search-results');
+        input.focus();
+
+        let players = [];
+        fetch(AVAILABLE_PLAYERS_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(res => res.json())
+            .then(data => {
+                players = data.players || [];
+                renderResults('');
+            })
+            .catch(err => console.error('Failed to load available players:', err));
+
+        function renderResults(query) {
+            const q = query.toLowerCase();
+            const matches = players
+                .filter(p => p.name.toLowerCase().includes(q))
+                .slice(0, 25);
+
+            results.innerHTML = '';
+            matches.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'cell-search-item';
+                item.innerHTML =
+                    '<span>' + p.name + '</span>' +
+                    '<span class="pos-rank ' + p.position.toLowerCase() + '">' + p.positional_rank + '</span>';
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    assignPlayerToCell(cell, p.id);
+                });
+                results.appendChild(item);
+            });
+        }
+
+        input.addEventListener('input', function() {
+            renderResults(this.value);
+        });
+        input.addEventListener('click', e => e.stopPropagation());
+    }
+
+    function assignPlayerToCell(cell, playerId) {
+        postForm(ASSIGN_URL, { pick_id: cell.dataset.pickId, player_id: playerId })
+            .then(data => {
+                if (!data.success) {
+                    console.error('Assign pick failed:', data.error);
+                    alert(data.error || 'Could not assign that player.');
+                    return;
+                }
+                openSearchCell = null;
+                renderFilledCell(cell, data);
+                syncRankingsPanelRow(data.player_name, true);
+            })
+            .catch(err => console.error('Assign pick request failed:', err));
+    }
+
+    function clearCell(cell) {
+        const playerName = cell.dataset.playerName;
+        if (!confirm('Remove ' + playerName + ' from pick #' + cell.dataset.overall + '?')) return;
+
+        postForm(CLEAR_URL, { pick_id: cell.dataset.pickId })
+            .then(data => {
+                if (!data.success) {
+                    console.error('Clear pick failed:', data.error);
+                    return;
+                }
+                renderEmptyCell(cell);
+                syncRankingsPanelRow(playerName, false);
+            })
+            .catch(err => console.error('Clear pick request failed:', err));
+    }
+
+    document.querySelectorAll('.draft-cell').forEach(cell => {
+        cell.addEventListener('click', function() {
+            if (this.classList.contains('filled')) {
+                clearCell(this);
+            } else {
+                openCellSearch(this);
+            }
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (openSearchCell && !openSearchCell.contains(e.target)) {
+            closeOpenSearch();
+        }
+    });
+
+    // Keep the side player panel's row in sync when a pick is made/cleared
+    // directly on the board (rather than from the panel's own draft button).
+    function syncRankingsPanelRow(playerName, drafted) {
+        const row = document.querySelector(
+            '.table-wrapper tbody tr[data-player-name="' + CSS.escape(playerName) + '"]'
+        );
+        if (row && typeof window.applyDraftState === 'function') {
+            window.applyDraftState(row, drafted, playerName);
+        }
+    }
+
+    // When the side panel's own draft button is used, immediately reflect
+    // the resulting pick on the board grid instead of waiting for the poll.
+    window.onRankingsPanelDraftChange = function(data) {
+        if (!data.pick) return;
+        const cell = document.querySelector('.draft-cell[data-pick-id="' + data.pick.pick_id + '"]');
+        if (!cell) return;
+
+        if (data.drafted) {
+            renderFilledCell(cell, {
+                player_id: null,
+                player_name: data.name,
+                position: cell.dataset.playerPosition,
+                positional_rank: cell.dataset.playerPositionalRank,
+            });
+            // player_position/positional_rank aren't included in the
+            // rankings toggle response, so pull them from the matching
+            // panel row instead.
+            const row = document.querySelector(
+                '.table-wrapper tbody tr[data-player-name="' + CSS.escape(data.name) + '"]'
+            );
+            if (row) {
+                const posCell = row.querySelector('.pos-rank');
+                if (posCell) {
+                    const body = cell.querySelector('.pick-body');
+                    body.innerHTML =
+                        '<span class="pick-player-name">' + data.name + '</span>' +
+                        '<span class="' + posCell.className + '">' + posCell.textContent + '</span>';
+                }
+            }
+        } else {
+            renderEmptyCell(cell);
+        }
+    };
+
+    // --- Poll the board for changes made by other users ---
+    function pollDraftBoard() {
+        if (document.hidden) return;
+
+        fetch(POLL_BOARD_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(res => res.json())
+            .then(data => {
+                const picks = data.picks || {};
+                const teams = data.teams || {};
+
+                document.querySelectorAll('.team-name-input').forEach(input => {
+                    const teamId = input.dataset.teamId;
+                    if (teams[teamId] && document.activeElement !== input && input.value !== teams[teamId]) {
+                        input.value = teams[teamId];
+                    }
+                });
+
+                document.querySelectorAll('.draft-cell').forEach(cell => {
+                    if (cell === openSearchCell) return; // don't disrupt an in-progress search
+
+                    const pickId = cell.dataset.pickId;
+                    const serverPick = picks[pickId];
+                    if (!serverPick) return;
+
+                    const currentlyFilled = cell.classList.contains('filled');
+                    const serverFilled = serverPick.player_id !== null;
+
+                    if (serverFilled && (!currentlyFilled || cell.dataset.playerId != serverPick.player_id)) {
+                        renderFilledCell(cell, serverPick);
+                    } else if (!serverFilled && currentlyFilled) {
+                        renderEmptyCell(cell);
+                    }
+                });
+            })
+            .catch(err => console.error('Draft board poll failed:', err));
+    }
+
+    setInterval(pollDraftBoard, POLL_INTERVAL_MS);
+})();
+</script>
+
+{% endblock %}

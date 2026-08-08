@@ -1,0 +1,254 @@
+{% comment %}
+Reusable player list panel: search box, position filters, and the player
+table with draft-toggle buttons. Included by both rankings.html and
+draft_board.html so the two stay visually/behaviorally identical.
+
+Expects a `players` context variable (an iterable of Player instances).
+{% endcomment %}
+
+<div class="row">
+
+    <div class="search-and-filters mb-3">
+        <div class="search-wrapper">
+            <input type="text" id="playerSearch" class="form-control" placeholder="Search for players...">
+        </div>
+
+        <div class="position-filters">
+            <label class="position-box qb">
+                <input type="checkbox" class="position-checkbox" value="QB" checked>
+                <span class="position-label">QB</span>
+            </label>
+            <label class="position-box rb">
+                <input type="checkbox" class="position-checkbox" value="RB" checked>
+                <span class="position-label">RB</span>
+            </label>
+            <label class="position-box wr">
+                <input type="checkbox" class="position-checkbox" value="WR" checked>
+                <span class="position-label">WR</span>
+            </label>
+            <label class="position-box te">
+                <input type="checkbox" class="position-checkbox" value="TE" checked>
+                <span class="position-label">TE</span>
+            </label>
+            <label class="position-box k">
+                <input type="checkbox" class="position-checkbox" value="K" checked>
+                <span class="position-label">K</span>
+            </label>
+            <label class="position-box dst">
+                <input type="checkbox" class="position-checkbox" value="DST" checked>
+                <span class="position-label">DST</span>
+            </label>
+        </div>
+    </div>
+
+    <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
+
+    <div class="table-wrapper">
+        <table class="table table-fixed">
+            <thead class="sticky-top">
+            <tr class="table-dark">
+                <th scope="col">Rank</th>
+                <th scope="col">Player</th>
+                <th scope="col" class="hidden">Position</th>
+                <th scope="col">Positional Rank</th>
+                <th scope="col">Team</th>
+                <th scope="col">Bye Week</th>
+                {% if user.is_superuser %}
+                <th scope="col">Draft</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            {% for player in players %}
+                {% if player.drafted == True %}
+                    <tr class="table-danger text-decoration-line-through" data-player-name="{{ player.name }}" data-drafted="true">
+                        <th scope="row">{{forloop.counter}}</th>
+                        <td>{{player.name}}</td>
+                        <td class="hidden">{{player.position}}</td>
+                        <td><span class="pos-rank {{ player.position|lower }}">{{player.positional_rank}}</span></td>
+                        <td>{{player.team}}</td>
+                        <td>{{player.bye}}</td>
+                        {% if user.is_superuser %}
+                        <td>
+                            <form method="POST" class="draft-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="name" value="{{ player.name }}">
+                                <button type="submit" class="draft-btn drafted" title="Undo draft for {{ player.name }}" aria-label="Undo draft for {{ player.name }}">&#8635;</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr class="table-dark" data-player-name="{{ player.name }}" data-drafted="false">
+                        <th scope="row">{{forloop.counter}}</th>
+                        <td>{{player.name}}</td>
+                        <td class="hidden">{{player.position}}</td>
+                        <td><span class="pos-rank {{ player.position|lower }}">{{player.positional_rank}}</span></td>
+                        <td>{{player.team}}</td>
+                        <td>{{player.bye}}</td>
+                        {% if user.is_superuser %}
+                        <td>
+                            <form method="POST" class="draft-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="name" value="{{ player.name }}">
+                                <button type="submit" class="draft-btn" title="Mark {{ player.name }} as drafted" aria-label="Draft {{ player.name }}">&times;</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    document.getElementById('playerSearch').addEventListener('keyup', function() {
+        filterTable();
+    });
+
+    const positionCheckboxes = document.querySelectorAll('.position-checkbox');
+
+    positionCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const others = Array.from(positionCheckboxes).filter(cb => cb !== this);
+            const wasAllCheckedBefore = !this.checked && others.every(cb => cb.checked);
+            const noneCheckedAfter = Array.from(positionCheckboxes).every(cb => !cb.checked);
+
+            if (wasAllCheckedBefore) {
+                this.checked = true;
+                others.forEach(cb => cb.checked = false);
+            } else if (noneCheckedAfter) {
+                positionCheckboxes.forEach(cb => cb.checked = true);
+            }
+
+            filterTable();
+        });
+    });
+
+    function filterTable() {
+        const searchText = document.getElementById('playerSearch').value.toLowerCase();
+        const checkedPositions = Array.from(positionCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+
+        const tableRows = document.querySelectorAll('.table-wrapper tbody tr');
+
+        tableRows.forEach(row => {
+            const playerName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+            const position = row.querySelector('td:nth-child(3)')?.textContent || '';
+
+            const matchesSearch = playerName.includes(searchText);
+            const matchesPosition = checkedPositions.length === 0 || checkedPositions.includes(position);
+
+            row.style.display = (matchesSearch && matchesPosition) ? '' : 'none';
+        });
+    }
+
+    filterTable();
+
+    // Shared function to apply a drafted/undrafted visual state to a row.
+    // Used by both the manual draft-toggle click and the background poller,
+    // so the two never disagree about what "drafted" should look like.
+    // Exposed on window so draft_board.html's own script can call it too
+    // when a pick is assigned/cleared directly from the board grid.
+    window.applyDraftState = function(row, drafted, name) {
+        row.dataset.drafted = drafted ? 'true' : 'false';
+
+        if (drafted) {
+            row.classList.remove('table-dark');
+            row.classList.add('table-danger', 'text-decoration-line-through');
+        } else {
+            row.classList.remove('table-danger', 'text-decoration-line-through');
+            row.classList.add('table-dark');
+        }
+
+        const submitBtn = row.querySelector('.draft-btn');
+        if (!submitBtn) return;
+
+        if (drafted) {
+            submitBtn.classList.add('drafted');
+            submitBtn.innerHTML = '&#8635;';
+            submitBtn.title = `Undo draft for ${name}`;
+            submitBtn.setAttribute('aria-label', `Undo draft for ${name}`);
+        } else {
+            submitBtn.classList.remove('drafted');
+            submitBtn.innerHTML = '&times;';
+            submitBtn.title = `Mark ${name} as drafted`;
+            submitBtn.setAttribute('aria-label', `Draft ${name}`);
+        }
+    };
+
+    document.querySelectorAll('.draft-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = this.querySelector('.draft-btn');
+            submitBtn.disabled = true;
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'rankings' %}", {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Draft toggle failed:', data.error);
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                const row = this.closest('tr');
+                window.applyDraftState(row, data.drafted, data.name);
+                submitBtn.disabled = false;
+
+                // If a draft board grid is present on this page, let it know
+                // a pick was just filled/cleared so it can update instantly
+                // instead of waiting for its own poll cycle.
+                if (typeof window.onRankingsPanelDraftChange === 'function') {
+                    window.onRankingsPanelDraftChange(data);
+                }
+            })
+            .catch(err => {
+                console.error('Draft toggle request failed:', err);
+                submitBtn.disabled = false;
+            });
+        });
+    });
+
+    // --- Polling for draft updates from other users ---
+    const POLL_INTERVAL_MS = 3000;
+    const POLL_URL = "{% url 'poll_draft_status' %}";
+
+    function pollDraftStatus() {
+        if (document.hidden) return;
+
+        fetch(POLL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.json())
+            .then(data => {
+                const players = data.players || {};
+
+                document.querySelectorAll('.table-wrapper tbody tr[data-player-name]').forEach(row => {
+                    const name = row.dataset.playerName;
+                    if (!(name in players)) return;
+
+                    const serverDrafted = players[name];
+                    const currentDrafted = row.dataset.drafted === 'true';
+
+                    if (serverDrafted !== currentDrafted) {
+                        window.applyDraftState(row, serverDrafted, name);
+                    }
+                });
+            })
+            .catch(err => console.error('Draft status poll failed:', err));
+    }
+
+    setInterval(pollDraftStatus, POLL_INTERVAL_MS);
+})();
+</script>
