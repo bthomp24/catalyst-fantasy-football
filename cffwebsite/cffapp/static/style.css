@@ -203,37 +203,82 @@
 /* ---------- Draft Board ---------- */
 
 .draft-board-layout {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
 .draft-board-wrapper {
-    flex: 1 1 720px;
     max-width: 100%;
     max-height: 75vh;
     overflow: auto;
 }
 
-.draft-board-side-panel {
-    flex: 1 1 380px;
-    max-width: 480px;
-}
-
 .draft-board-table {
+    width: 100%;
+    table-layout: fixed;
     border-collapse: separate;
     border-spacing: 4px;
 }
 
+.draft-cell,
+.team-header-cell {
+    width: auto;
+    min-width: 0;
+}
+
 .round-header-cell,
 .round-number-cell {
+    width: 56px;
+    min-width: 56px;
     position: sticky;
     left: 0;
     z-index: 2;
     background-color: #212529;
     text-align: center;
-    min-width: 60px;
+}
+
+/* Rankings panel now pops over the board as a fixed overlay on the right,
+   instead of sharing horizontal space with it. */
+.rankings-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 520px;
+    max-width: 92vw;
+    height: 100vh;
+    overflow-y: auto;
+    background-color: #1a1d20;
+    box-shadow: -6px 0 24px rgba(0, 0, 0, 0.55);
+    padding: 20px;
+    z-index: 1050;
+    transform: translateX(100%);
+    transition: transform 0.25s ease-in-out;
+}
+
+.rankings-overlay.panel-open {
+    transform: translateX(0);
+}
+
+.rankings-overlay-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background-color: #343a40;
+    color: #fff;
+    font-size: 1.4em;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+.rankings-overlay-close:hover {
+    background-color: #495057;
 }
 
 .team-header-cell {
@@ -242,14 +287,15 @@
 }
 
 .team-name-input {
-    width: 130px;
+    width: 100%;
+    box-sizing: border-box;
     text-align: center;
     font-weight: bold;
     background-color: #343a40;
     color: #fff;
     border: 1px solid #495057;
     border-radius: 6px;
-    padding: 4px 6px;
+    padding: 4px 4px;
 }
 .team-name-input:focus {
     outline: none;
@@ -259,9 +305,7 @@
 
 .draft-cell {
     position: relative;
-    width: 130px;
-    height: 78px;
-    min-width: 130px;
+    height: 88px;
     padding: 4px !important;
     border-radius: 6px;
     background-color: #343a40;
@@ -317,30 +361,36 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    gap: 4px;
+    width: 100%;
+    gap: 2px;
     text-align: center;
+    padding-bottom: 2px;
 }
 
 .pick-player-name {
-    font-size: 0.82em;
+    font-size: 0.74em;
     font-weight: 700;
     color: #fff;
-    line-height: 1.1;
+    line-height: 1.15;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 118px;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .pick-meta {
-    font-size: 0.68em;
+    font-size: 0.62em;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 118px;
+    max-width: 100%;
 }
 
 .pick-empty {
@@ -392,8 +442,9 @@
 }
 
 @media (max-width: 992px) {
-    .draft-board-side-panel {
-        max-width: 100%;
+    .rankings-overlay {
+        width: 100vw;
+        max-width: 100vw;
     }
 }
 

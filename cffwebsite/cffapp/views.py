@@ -84,12 +84,12 @@ class RankingsView(FilterView):
         
 
 def clear_draft(request):
-    players = Player.objects.all()
-    for player in players:
-        if player.drafted:
-            player.drafted = False
-            player.save()
+    Player.objects.filter(drafted=True).update(drafted=False)
+    DraftPick.objects.exclude(player__isnull=True).update(player=None)
 
+    redirect_to = request.META.get('HTTP_REFERER')
+    if redirect_to:
+        return HttpResponseRedirect(redirect_to)
     return HttpResponseRedirect('rankings')
 
 def poll_draft_status(request):

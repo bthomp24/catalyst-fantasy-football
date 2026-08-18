@@ -7,7 +7,7 @@
 
 
     {% if user.is_superuser %}
-        <a href="{% url 'clear_draft' %}" class="btn btn-success" role="button">Clear Draft</a>
+        <a href="{% url 'clear_draft' %}" class="btn btn-success" role="button" onclick="return confirm('Clear the entire draft board? This will un-draft every player.');">Clear Draft</a>
     {% endif %}
     </br>
     </br>

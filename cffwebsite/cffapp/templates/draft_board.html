@@ -4,7 +4,14 @@
 
 <h1 class="heading text-white text-center">Draft Board</h1>
 
-<div class="draft-board-layout">
+<div class="d-flex justify-content-end gap-2 mb-3">
+    {% if user.is_superuser %}
+    <a href="{% url 'clear_draft' %}" class="btn btn-danger" role="button" onclick="return confirm('Clear the entire draft board? This will un-draft every player.');">Clear Draft</a>
+    {% endif %}
+    <button type="button" id="toggleRankingsBtn" class="btn btn-success">Hide Rankings</button>
+</div>
+
+<div class="draft-board-layout" id="draftBoardLayout">
 
     <div class="draft-board-wrapper">
         <table class="table table-dark draft-board-table">
@@ -48,7 +55,7 @@
                         <div class="pick-body">
                             {% if pick.player %}
                                 <span class="pick-player-name">{{ pick.player.name }}</span>
-                                <span class="pick-meta">{{ pick.player.positional_rank }} &middot; {{ pick.player.team }} &middot; Bye {{ pick.player.bye }}</span>
+                                <span class="pick-meta">{{ pick.player.positional_rank }} &middot; {{ pick.player.team }}</span>
                             {% else %}
                                 <span class="pick-empty">+</span>
                             {% endif %}
@@ -61,10 +68,11 @@
         </table>
     </div>
 
-    <div class="draft-board-side-panel">
-        {% include 'player_panel.html' with players=players %}
-    </div>
+</div>
 
+<div class="rankings-overlay" id="draftBoardSidePanel">
+    <button type="button" id="closeRankingsBtn" class="rankings-overlay-close" aria-label="Close rankings">&times;</button>
+    {% include 'player_panel.html' with players=players %}
 </div>
 
 <script>
@@ -81,6 +89,40 @@
     const AVAILABLE_PLAYERS_URL = "{% url 'available_players' %}";
     const POLL_BOARD_URL = "{% url 'poll_draft_board' %}";
     const POLL_INTERVAL_MS = 3000;
+
+    // --- Rankings overlay panel ---
+    const toggleBtn = document.getElementById('toggleRankingsBtn');
+    const closeBtn = document.getElementById('closeRankingsBtn');
+    const sidePanel = document.getElementById('draftBoardSidePanel');
+    const PANEL_HIDDEN_KEY = 'draftBoardRankingsHidden';
+
+    function setPanelHidden(hidden) {
+        sidePanel.classList.toggle('panel-open', !hidden);
+        toggleBtn.textContent = hidden ? 'Show Rankings' : 'Hide Rankings';
+        localStorage.setItem(PANEL_HIDDEN_KEY, hidden ? '1' : '0');
+    }
+
+    toggleBtn.addEventListener('click', function() {
+        setPanelHidden(sidePanel.classList.contains('panel-open'));
+    });
+
+    closeBtn.addEventListener('click', function() {
+        setPanelHidden(true);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (
+            sidePanel.classList.contains('panel-open') &&
+            !sidePanel.contains(e.target) &&
+            e.target !== toggleBtn
+        ) {
+            setPanelHidden(true);
+        }
+    });
+
+    // Rankings panel starts hidden by default; only stays open across
+    // reloads if the admin explicitly left it open last time.
+    setPanelHidden(localStorage.getItem(PANEL_HIDDEN_KEY) !== '0');
 
     function postForm(url, data) {
         const formData = new FormData();
@@ -142,7 +184,7 @@
         const body = cell.querySelector('.pick-body');
         body.innerHTML =
             '<span class="pick-player-name">' + (player.player_name ?? player.name) + '</span>' +
-            '<span class="pick-meta">' + player.positional_rank + ' &middot; ' + player.team + ' &middot; Bye ' + player.bye + '</span>';
+            '<span class="pick-meta">' + player.positional_rank + ' &middot; ' + player.team + '</span>';
     }
 
     function renderEmptyCell(cell) {
