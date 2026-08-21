@@ -284,6 +284,18 @@
 .team-header-cell {
     text-align: center;
     padding: 4px !important;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background-color: #212529;
+}
+
+/* The "Round" corner cell is sticky both horizontally (from the shared
+   rule above) and vertically, so it must sit above both the sticky team
+   headers (z-index 3) and the sticky round-number column (z-index 2). */
+.round-header-cell {
+    top: 0;
+    z-index: 4;
 }
 
 .team-name-input {
