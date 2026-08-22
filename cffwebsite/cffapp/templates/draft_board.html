@@ -4,7 +4,7 @@
 
 <h1 class="heading text-white text-center">Draft Board</h1>
 
-<div class="d-flex justify-content-end gap-2 mb-3">
+<div class="d-flex justify-content-start gap-2 mb-3">
     {% if user.is_superuser %}
     <a href="{% url 'clear_draft' %}" class="btn btn-danger" role="button" onclick="return confirm('Clear the entire draft board? This will un-draft every player.');">Clear Draft</a>
     {% endif %}
