@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_POST
+from django.db.models import F
 from django import template
 
 register = template.Library()
@@ -139,12 +140,13 @@ def draft_board(request):
         cells = [board[round_number][team.id] for team in teams]
         rounds.append({'round_number': round_number, 'cells': cells})
 
-    players = Player.objects.all().order_by('id')
+    players = Player.objects.all().order_by(F('board_rank').asc(nulls_last=True), 'id')
 
     context = {
         'teams': teams,
         'rounds': rounds,
         'players': players,
+        'use_board_ranking': True,
     }
     return render(request, 'draft_board.html', context)
 

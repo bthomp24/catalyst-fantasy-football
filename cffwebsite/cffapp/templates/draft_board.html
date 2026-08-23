@@ -72,7 +72,7 @@
 
 <div class="rankings-overlay" id="draftBoardSidePanel">
     <button type="button" id="closeRankingsBtn" class="rankings-overlay-close" aria-label="Close rankings">&times;</button>
-    {% include 'player_panel.html' with players=players %}
+    {% include 'player_panel.html' with players=players use_board_ranking=True %}
 </div>
 
 <script>

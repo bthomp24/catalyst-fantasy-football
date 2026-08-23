@@ -13,6 +13,12 @@ class Player(models.Model):
     positional_rank = models.CharField(max_length=255, default="")
     adp = models.FloatField(default=0)
     bye = models.IntegerField(default=0)
+
+    # Separate ranking source used only by the draft board's side panel.
+    # The public rankings page (rank/positional_rank above) is untouched
+    # by these, so logged-out visitors keep seeing the original rankings.
+    board_rank = models.IntegerField(null=True, blank=True)
+    board_positional_rank = models.CharField(max_length=255, blank=True, default="")
     
     def __str__(self):
         return str(self.rank) + ' | ' + self.name + ' | ' + self.team + ' | ' + self.position

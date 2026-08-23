@@ -65,7 +65,7 @@ Expects a `players` context variable (an iterable of Player instances).
                         <th scope="row">{{forloop.counter}}</th>
                         <td>{{player.name}}</td>
                         <td class="hidden">{{player.position}}</td>
-                        <td><span class="pos-rank {{ player.position|lower }}">{{player.positional_rank}}</span></td>
+                        <td><span class="pos-rank {{ player.position|lower }}">{% if use_board_ranking %}{{ player.board_positional_rank|default:player.positional_rank }}{% else %}{{ player.positional_rank }}{% endif %}</span></td>
                         <td>{{player.team}}</td>
                         <td>{{player.bye}}</td>
                         {% if user.is_superuser %}
@@ -83,7 +83,7 @@ Expects a `players` context variable (an iterable of Player instances).
                         <th scope="row">{{forloop.counter}}</th>
                         <td>{{player.name}}</td>
                         <td class="hidden">{{player.position}}</td>
-                        <td><span class="pos-rank {{ player.position|lower }}">{{player.positional_rank}}</span></td>
+                        <td><span class="pos-rank {{ player.position|lower }}">{% if use_board_ranking %}{{ player.board_positional_rank|default:player.positional_rank }}{% else %}{{ player.positional_rank }}{% endif %}</span></td>
                         <td>{{player.team}}</td>
                         <td>{{player.bye}}</td>
                         {% if user.is_superuser %}
