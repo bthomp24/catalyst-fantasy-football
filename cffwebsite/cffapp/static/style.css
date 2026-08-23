@@ -200,6 +200,28 @@
   display:none;
 }
 
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+.sortable-header:hover {
+    color: #0b9454;
+}
+.sort-indicator {
+    font-size: 0.7em;
+    margin-left: 2px;
+}
+
+.narrow-rank-col {
+    width: 1%;
+    white-space: nowrap;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    font-size: 0.85em;
+    text-align: center;
+}
+
 /* ---------- Draft Board ---------- */
 
 .draft-board-layout {

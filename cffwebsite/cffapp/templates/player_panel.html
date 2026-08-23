@@ -47,10 +47,17 @@ Expects a `players` context variable (an iterable of Player instances).
         <table class="table table-fixed">
             <thead class="sticky-top">
             <tr class="table-dark">
+                {% if use_board_ranking %}
+                <th scope="col" class="sortable-header narrow-rank-col" data-sort-key="board-rank" title="Board Rank">Board <span class="sort-indicator"></span></th>
+                {% else %}
                 <th scope="col">Rank</th>
+                {% endif %}
                 <th scope="col">Player</th>
                 <th scope="col" class="hidden">Position</th>
                 <th scope="col">Positional Rank</th>
+                {% if use_board_ranking %}
+                <th scope="col" class="sortable-header narrow-rank-col" data-sort-key="espn-rank" title="ESPN Rank">ESPN <span class="sort-indicator"></span></th>
+                {% endif %}
                 <th scope="col">Team</th>
                 <th scope="col">Bye Week</th>
                 {% if user.is_superuser %}
@@ -61,11 +68,18 @@ Expects a `players` context variable (an iterable of Player instances).
             <tbody class="table-group-divider">
             {% for player in players %}
                 {% if player.drafted == True %}
-                    <tr class="table-danger text-decoration-line-through" data-player-name="{{ player.name }}" data-drafted="true">
+                    <tr class="table-danger text-decoration-line-through" data-player-name="{{ player.name }}" data-drafted="true" data-board-rank="{{ player.board_rank|default_if_none:'' }}" data-espn-rank="{{ player.rank|default_if_none:'' }}">
+                        {% if use_board_ranking %}
+                        <th scope="row" class="narrow-rank-col">{{ player.board_rank|default:"—" }}</th>
+                        {% else %}
                         <th scope="row">{{forloop.counter}}</th>
+                        {% endif %}
                         <td>{{player.name}}</td>
                         <td class="hidden">{{player.position}}</td>
                         <td><span class="pos-rank {{ player.position|lower }}">{% if use_board_ranking %}{{ player.board_positional_rank|default:player.positional_rank }}{% else %}{{ player.positional_rank }}{% endif %}</span></td>
+                        {% if use_board_ranking %}
+                        <td class="narrow-rank-col">{{ player.rank|default:"—" }}</td>
+                        {% endif %}
                         <td>{{player.team}}</td>
                         <td>{{player.bye}}</td>
                         {% if user.is_superuser %}
@@ -79,11 +93,18 @@ Expects a `players` context variable (an iterable of Player instances).
                         {% endif %}
                     </tr>
                 {% else %}
-                    <tr class="table-dark" data-player-name="{{ player.name }}" data-drafted="false">
+                    <tr class="table-dark" data-player-name="{{ player.name }}" data-drafted="false" data-board-rank="{{ player.board_rank|default_if_none:'' }}" data-espn-rank="{{ player.rank|default_if_none:'' }}">
+                        {% if use_board_ranking %}
+                        <th scope="row" class="narrow-rank-col">{{ player.board_rank|default:"—" }}</th>
+                        {% else %}
                         <th scope="row">{{forloop.counter}}</th>
+                        {% endif %}
                         <td>{{player.name}}</td>
                         <td class="hidden">{{player.position}}</td>
                         <td><span class="pos-rank {{ player.position|lower }}">{% if use_board_ranking %}{{ player.board_positional_rank|default:player.positional_rank }}{% else %}{{ player.positional_rank }}{% endif %}</span></td>
+                        {% if use_board_ranking %}
+                        <td class="narrow-rank-col">{{ player.rank|default:"—" }}</td>
+                        {% endif %}
                         <td>{{player.team}}</td>
                         <td>{{player.bye}}</td>
                         {% if user.is_superuser %}
@@ -149,6 +170,58 @@ Expects a `players` context variable (an iterable of Player instances).
     }
 
     filterTable();
+
+    // --- Sortable column headers (Board Rank / ESPN Rank comparison) ---
+    const sortableHeaders = document.querySelectorAll('.sortable-header');
+
+    function sortRowsBy(sortKey, direction) {
+        const tbody = document.querySelector('.table-wrapper tbody');
+        const attr = sortKey === 'board-rank' ? 'boardRank' : 'espnRank';
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+            const aRaw = a.dataset[attr];
+            const bRaw = b.dataset[attr];
+            // Unranked players (blank value) always sort to the bottom,
+            // regardless of ascending/descending direction.
+            const aVal = aRaw === '' || aRaw === undefined ? Infinity : parseFloat(aRaw);
+            const bVal = bRaw === '' || bRaw === undefined ? Infinity : parseFloat(bRaw);
+            if (aVal === Infinity && bVal === Infinity) return 0;
+            if (aVal === Infinity) return 1;
+            if (bVal === Infinity) return -1;
+            return direction === 'asc' ? aVal - bVal : bVal - aVal;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const key = this.dataset.sortKey;
+            const nextDir = this.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+
+            sortableHeaders.forEach(h => {
+                h.dataset.sortDir = '';
+                const indicator = h.querySelector('.sort-indicator');
+                if (indicator) indicator.textContent = '';
+            });
+
+            this.dataset.sortDir = nextDir;
+            const indicator = this.querySelector('.sort-indicator');
+            if (indicator) indicator.textContent = nextDir === 'asc' ? '\u25B2' : '\u25BC';
+
+            sortRowsBy(key, nextDir);
+        });
+    });
+
+    // Default sort: Board Rank ascending, matching the server-rendered
+    // order, so the indicator reflects reality on first load.
+    const defaultHeader = document.querySelector('.sortable-header[data-sort-key="board-rank"]');
+    if (defaultHeader) {
+        defaultHeader.dataset.sortDir = 'asc';
+        const indicator = defaultHeader.querySelector('.sort-indicator');
+        if (indicator) indicator.textContent = '\u25B2';
+    }
 
     // Shared function to apply a drafted/undrafted visual state to a row.
     // Used by both the manual draft-toggle click and the background poller,

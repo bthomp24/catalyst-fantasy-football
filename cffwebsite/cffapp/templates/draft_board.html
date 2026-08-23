@@ -343,8 +343,10 @@
         const cells = row.querySelectorAll('td');
         const position = cells[1]?.textContent.trim() || '';
         const positionalRank = cells[2]?.textContent.trim() || '';
-        const team = cells[3]?.textContent.trim() || '';
-        const bye = cells[4]?.textContent.trim() || '';
+        // cells[3] is ESPN Rank (only present when use_board_ranking, which
+        // is always true on this page) - skip it, team/bye come after it.
+        const team = cells[4]?.textContent.trim() || '';
+        const bye = cells[5]?.textContent.trim() || '';
 
         renderFilledCell(cell, {
             player_id: null,
