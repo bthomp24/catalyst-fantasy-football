@@ -34,6 +34,7 @@ NUM_ROUNDS = 15
 class FantasyTeam(models.Model):
     name = models.CharField(max_length=100)
     slot = models.PositiveSmallIntegerField(unique=True)  # column position, 1-14
+    is_my_team = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['slot']

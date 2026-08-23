@@ -68,7 +68,7 @@ Expects a `players` context variable (an iterable of Player instances).
             <tbody class="table-group-divider">
             {% for player in players %}
                 {% if player.drafted == True %}
-                    <tr class="table-danger text-decoration-line-through" data-player-name="{{ player.name }}" data-drafted="true" data-board-rank="{{ player.board_rank|default_if_none:'' }}" data-espn-rank="{{ player.rank|default_if_none:'' }}">
+                    <tr class="table-danger text-decoration-line-through{% if player.id == projected_pick_player_id %} projected-pick-row{% endif %}" data-player-id="{{ player.id }}" data-player-name="{{ player.name }}" data-drafted="true" data-board-rank="{{ player.board_rank|default_if_none:'' }}" data-espn-rank="{{ player.rank|default_if_none:'' }}">
                         {% if use_board_ranking %}
                         <th scope="row" class="narrow-rank-col">{{ player.board_rank|default:"—" }}</th>
                         {% else %}
@@ -93,7 +93,7 @@ Expects a `players` context variable (an iterable of Player instances).
                         {% endif %}
                     </tr>
                 {% else %}
-                    <tr class="table-dark" data-player-name="{{ player.name }}" data-drafted="false" data-board-rank="{{ player.board_rank|default_if_none:'' }}" data-espn-rank="{{ player.rank|default_if_none:'' }}">
+                    <tr class="table-dark{% if player.id == projected_pick_player_id %} projected-pick-row{% endif %}" data-player-id="{{ player.id }}" data-player-name="{{ player.name }}" data-drafted="false" data-board-rank="{{ player.board_rank|default_if_none:'' }}" data-espn-rank="{{ player.rank|default_if_none:'' }}">
                         {% if use_board_ranking %}
                         <th scope="row" class="narrow-rank-col">{{ player.board_rank|default:"—" }}</th>
                         {% else %}
@@ -193,7 +193,41 @@ Expects a `players` context variable (an iterable of Player instances).
         });
 
         rows.forEach(row => tbody.appendChild(row));
+
+        if (typeof window.recomputeProjectedPickRow === 'function') {
+            window.recomputeProjectedPickRow();
+        }
     }
+
+    // Marks whichever undrafted player sits at index `window.currentPicksBetween`
+    // in the CURRENT visible sort order as the projected next available pick.
+    // Works for whatever column is presently sorted (Board Rank or ESPN Rank),
+    // since it just reads live DOM order rather than a fixed server-computed row.
+    // No-op on pages (like the plain rankings page) that never set this global.
+    window.recomputeProjectedPickRow = function() {
+        document.querySelectorAll('.projected-pick-row').forEach(row => {
+            row.classList.remove('projected-pick-row');
+        });
+
+        const nameEl = document.getElementById('pickProjectionPlayerName');
+
+        if (typeof window.currentPicksBetween !== 'number') return;
+
+        const tbody = document.querySelector('.table-wrapper tbody');
+        if (!tbody) return;
+
+        const undraftedRows = Array.from(tbody.querySelectorAll('tr')).filter(
+            row => row.dataset.drafted === 'false'
+        );
+        const targetRow = undraftedRows[window.currentPicksBetween];
+
+        if (targetRow) {
+            targetRow.classList.add('projected-pick-row');
+            if (nameEl) nameEl.textContent = targetRow.dataset.playerName;
+        } else if (nameEl) {
+            nameEl.textContent = '—';
+        }
+    };
 
     sortableHeaders.forEach(header => {
         header.addEventListener('click', function() {

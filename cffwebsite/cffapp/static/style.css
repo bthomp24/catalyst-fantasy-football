@@ -222,6 +222,46 @@
     text-align: center;
 }
 
+/* Yellow line marking the projected next available player for "my team".
+   box-shadow on <tr> is unreliable across browsers in table layouts, so
+   we apply a real border-top to each cell in the row instead. */
+.projected-pick-row > * {
+    border-top: 3px solid #ffc107 !important;
+}
+
+.pick-projection-banner {
+    background-color: #2a2f34;
+    border: 1px solid #495057;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    color: #fff;
+    font-size: 0.95em;
+}
+.pick-projection-banner.pick-projection-empty {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+.my-team-star {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1.1em;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 0;
+    transition: color 0.15s ease-in-out;
+}
+.my-team-star:hover {
+    color: #ffdd77;
+}
+.my-team-star.active {
+    color: #ffc107;
+}
+
 /* ---------- Draft Board ---------- */
 
 .draft-board-layout {

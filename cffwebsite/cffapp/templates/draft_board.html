@@ -11,6 +11,21 @@
     <button type="button" id="toggleRankingsBtn" class="btn btn-success">Hide Rankings</button>
 </div>
 
+<div id="pickProjectionBanner" class="pick-projection-banner {% if not projection %}pick-projection-empty{% endif %}">
+    {% if projection %}
+        {% if projection.picks_between == 0 %}
+            <strong>You're on the clock!</strong> Pick #{{ projection.next_pick_overall }} (Round {{ projection.next_pick_round }})
+        {% else %}
+            <strong>{{ projection.picks_between }}</strong> pick{{ projection.picks_between|pluralize }} until your next pick &mdash; Pick #{{ projection.next_pick_overall }} (Round {{ projection.next_pick_round }}).
+            Projected available: <strong>{{ projection.projected_player_name|default:"—" }}</strong>
+        {% endif %}
+    {% else %}
+        Click the star on your team's column to track your next pick.
+    {% endif %}
+</div>
+
+{{ projection|json_script:"initial-projection-data" }}
+
 <div class="draft-board-layout" id="draftBoardLayout">
 
     <div class="draft-board-wrapper">
@@ -20,6 +35,13 @@
                     <th scope="col" class="round-header-cell">Round</th>
                     {% for team in teams %}
                     <th scope="col" class="team-header-cell">
+                        <button
+                            type="button"
+                            class="my-team-star {% if team.is_my_team %}active{% endif %}"
+                            data-team-id="{{ team.id }}"
+                            title="Mark as my team"
+                            aria-label="Mark {{ team.name }} as my team"
+                        >&#9733;</button>
                         <input
                             type="text"
                             class="team-name-input"
@@ -72,7 +94,7 @@
 
 <div class="rankings-overlay" id="draftBoardSidePanel">
     <button type="button" id="closeRankingsBtn" class="rankings-overlay-close" aria-label="Close rankings">&times;</button>
-    {% include 'player_panel.html' with players=players use_board_ranking=True %}
+    {% include 'player_panel.html' with players=players use_board_ranking=True projected_pick_player_id=projected_pick_player_id %}
 </div>
 
 <script>
@@ -86,6 +108,7 @@
     const ASSIGN_URL = "{% url 'assign_draft_pick' %}";
     const CLEAR_URL = "{% url 'clear_draft_pick' %}";
     const UPDATE_TEAM_URL = "{% url 'update_team_name' %}";
+    const SET_MY_TEAM_URL = "{% url 'set_my_team' %}";
     const AVAILABLE_PLAYERS_URL = "{% url 'available_players' %}";
     const POLL_BOARD_URL = "{% url 'poll_draft_board' %}";
     const POLL_INTERVAL_MS = 3000;
@@ -163,6 +186,56 @@
                 });
         });
     });
+
+    // --- "My team" star toggle ---
+    document.querySelectorAll('.my-team-star').forEach(star => {
+        star.addEventListener('click', function() {
+            postForm(SET_MY_TEAM_URL, { team_id: this.dataset.teamId })
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Set my team failed:', data.error);
+                        return;
+                    }
+                    document.querySelectorAll('.my-team-star').forEach(s => {
+                        s.classList.toggle('active', s.dataset.teamId === this.dataset.teamId);
+                    });
+                    applyProjection(data.projection);
+                });
+        });
+    });
+
+    // Renders the pick-projection banner and delegates figuring out WHICH
+    // player is projected to recomputeProjectedPickRow() (in player_panel.html),
+    // since that depends on whichever column is currently sorted (Board Rank
+    // or ESPN Rank) - not a fixed value from the server.
+    // Called on initial load, every poll, and whenever "my team" changes.
+    function applyProjection(projection) {
+        const banner = document.getElementById('pickProjectionBanner');
+
+        if (!projection) {
+            window.currentPicksBetween = null;
+            banner.classList.add('pick-projection-empty');
+            banner.innerHTML = "Click the star on your team's column to track your next pick.";
+            if (typeof window.recomputeProjectedPickRow === 'function') {
+                window.recomputeProjectedPickRow();
+            }
+            return;
+        }
+
+        window.currentPicksBetween = projection.picks_between;
+        banner.classList.remove('pick-projection-empty');
+
+        if (projection.picks_between === 0) {
+            banner.innerHTML = `<strong>You're on the clock!</strong> Pick #${projection.next_pick_overall} (Round ${projection.next_pick_round})`;
+        } else {
+            const plural = projection.picks_between === 1 ? '' : 's';
+            banner.innerHTML = `<strong>${projection.picks_between}</strong> pick${plural} until your next pick &mdash; Pick #${projection.next_pick_overall} (Round ${projection.next_pick_round}). Projected available: <strong id="pickProjectionPlayerName">&mdash;</strong>`;
+        }
+
+        if (typeof window.recomputeProjectedPickRow === 'function') {
+            window.recomputeProjectedPickRow();
+        }
+    }
 
     // --- Cell rendering helpers ---
     const POSITION_CLASSES = ['qb', 'rb', 'wr', 'te', 'k', 'dst'];
@@ -391,8 +464,17 @@
                         renderEmptyCell(cell);
                     }
                 });
+
+                applyProjection(data.projection);
             })
             .catch(err => console.error('Draft board poll failed:', err));
+    }
+
+    // Establish correct state immediately on load, rather than waiting up
+    // to POLL_INTERVAL_MS for the first poll to run.
+    const initialProjectionEl = document.getElementById('initial-projection-data');
+    if (initialProjectionEl) {
+        applyProjection(JSON.parse(initialProjectionEl.textContent));
     }
 
     setInterval(pollDraftBoard, POLL_INTERVAL_MS);

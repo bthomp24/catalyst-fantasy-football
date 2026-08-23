@@ -124,6 +124,61 @@ def ensure_draft_board_exists():
         DraftPick.objects.bulk_create(picks_to_create)
 
 
+def compute_my_pick_projection():
+    """Figures out, for whichever FantasyTeam is marked is_my_team:
+    - how many live (still-open) picks happen before my next turn, correctly
+      skipping over any already-filled keeper slots wherever they fall
+    - which currently-undrafted player would be "on the clock" for me if
+      the draft proceeds in best-board-rank-available order from here
+
+    Returns None if no team is marked as mine, or if my team has no
+    remaining open picks (fully drafted / bench full)."""
+    my_team = FantasyTeam.objects.filter(is_my_team=True).first()
+    if not my_team:
+        return None
+
+    my_next_pick = (
+        DraftPick.objects.filter(team=my_team, player__isnull=True)
+        .order_by('overall_pick')
+        .first()
+    )
+    if not my_next_pick:
+        return None
+
+    current_pointer = (
+        DraftPick.objects.filter(player__isnull=True)
+        .order_by('overall_pick')
+        .first()
+    )
+    if not current_pointer:
+        return None
+
+    # Count only the still-open picks strictly between "now" and my next
+    # pick - already-filled keeper slots in that range don't count, since
+    # they don't represent a live selection happening in between.
+    picks_between = DraftPick.objects.filter(
+        player__isnull=True,
+        overall_pick__gte=current_pointer.overall_pick,
+        overall_pick__lt=my_next_pick.overall_pick,
+    ).count()
+
+    available_players = list(
+        Player.objects.filter(drafted=False)
+        .order_by(F('board_rank').asc(nulls_last=True), 'id')[:picks_between + 1]
+    )
+    projected_player = available_players[picks_between] if len(available_players) > picks_between else None
+
+    return {
+        'my_team_id': my_team.id,
+        'my_team_name': my_team.name,
+        'next_pick_overall': my_next_pick.overall_pick,
+        'next_pick_round': my_next_pick.round_number,
+        'picks_between': picks_between,
+        'projected_player_id': projected_player.id if projected_player else None,
+        'projected_player_name': projected_player.name if projected_player else None,
+    }
+
+
 @user_passes_test(lambda u: u.is_superuser)
 def draft_board(request):
     ensure_draft_board_exists()
@@ -141,14 +196,35 @@ def draft_board(request):
         rounds.append({'round_number': round_number, 'cells': cells})
 
     players = Player.objects.all().order_by(F('board_rank').asc(nulls_last=True), 'id')
+    projection = compute_my_pick_projection()
 
     context = {
         'teams': teams,
         'rounds': rounds,
         'players': players,
         'use_board_ranking': True,
+        'projection': projection,
+        'projected_pick_player_id': projection['projected_player_id'] if projection else None,
     }
     return render(request, 'draft_board.html', context)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+def set_my_team(request):
+    team_id = request.POST.get('team_id')
+
+    try:
+        team = FantasyTeam.objects.get(id=team_id)
+    except FantasyTeam.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Team not found'}, status=404)
+
+    FantasyTeam.objects.exclude(id=team.id).update(is_my_team=False)
+    team.is_my_team = True
+    team.save()
+
+    projection = compute_my_pick_projection()
+    return JsonResponse({'success': True, 'my_team_id': team.id, 'projection': projection})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -260,4 +336,8 @@ def poll_draft_board(request):
     teams = FantasyTeam.objects.values('id', 'name')
     team_data = {t['id']: t['name'] for t in teams}
 
-    return JsonResponse({'picks': pick_data, 'teams': team_data})
+    return JsonResponse({
+        'picks': pick_data,
+        'teams': team_data,
+        'projection': compute_my_pick_projection(),
+    })
