@@ -128,8 +128,9 @@ def compute_my_pick_projection():
     """Figures out, for whichever FantasyTeam is marked is_my_team:
     - how many live (still-open) picks happen before my next turn, correctly
       skipping over any already-filled keeper slots wherever they fall
-    - which currently-undrafted player would be "on the clock" for me if
-      the draft proceeds in best-board-rank-available order from here
+    - which currently-undrafted player would be "on the clock" for me,
+      simulating that the other teams draft by ESPN rank (player.rank) and
+      then taking the best remaining player by MY board rank (board_rank)
 
     Returns None if no team is marked as mine, or if my team has no
     remaining open picks (fully drafted / bench full)."""
@@ -155,18 +156,36 @@ def compute_my_pick_projection():
 
     # Count only the still-open picks strictly between "now" and my next
     # pick - already-filled keeper slots in that range don't count, since
-    # they don't represent a live selection happening in between.
+    # they don't represent a live selection happening in between. Because
+    # my_next_pick is my team's EARLIEST open pick, every pick in this
+    # range necessarily belongs to another team.
     picks_between = DraftPick.objects.filter(
         player__isnull=True,
         overall_pick__gte=current_pointer.overall_pick,
         overall_pick__lt=my_next_pick.overall_pick,
     ).count()
 
-    available_players = list(
-        Player.objects.filter(drafted=False)
-        .order_by(F('board_rank').asc(nulls_last=True), 'id')[:picks_between + 1]
-    )
-    projected_player = available_players[picks_between] if len(available_players) > picks_between else None
+    def espn_rank_key(player):
+        try:
+            return float(player.rank)
+        except (TypeError, ValueError):
+            return float('inf')
+
+    def board_rank_key(player):
+        return player.board_rank if player.board_rank is not None else float('inf')
+
+    undrafted = list(Player.objects.filter(drafted=False))
+
+    # Simulate: the next `picks_between` live picks (all belonging to other
+    # teams) go to the top ESPN-ranked undrafted players.
+    by_espn_rank = sorted(undrafted, key=espn_rank_key)
+    taken_by_others_ids = {p.id for p in by_espn_rank[:picks_between]}
+
+    # From whatever's left after that, my projected pick is the best
+    # remaining player according to MY board rankings.
+    remaining = [p for p in undrafted if p.id not in taken_by_others_ids]
+    remaining.sort(key=board_rank_key)
+    projected_player = remaining[0] if remaining else None
 
     return {
         'my_team_id': my_team.id,

@@ -222,6 +222,8 @@
             return;
         }
 
+        // Drives the yellow line: simple "Nth undrafted player in whichever
+        // column is currently sorted" logic, handled in player_panel.html.
         window.currentPicksBetween = projection.picks_between;
         banner.classList.remove('pick-projection-empty');
 
@@ -229,7 +231,12 @@
             banner.innerHTML = `<strong>You're on the clock!</strong> Pick #${projection.next_pick_overall} (Round ${projection.next_pick_round})`;
         } else {
             const plural = projection.picks_between === 1 ? '' : 's';
-            banner.innerHTML = `<strong>${projection.picks_between}</strong> pick${plural} until your next pick &mdash; Pick #${projection.next_pick_overall} (Round ${projection.next_pick_round}). Projected available: <strong id="pickProjectionPlayerName">&mdash;</strong>`;
+            // This name comes from the smarter server-side simulation
+            // (opponents draft by ESPN rank, best remaining by board rank) -
+            // independent of the yellow line above, which can point at a
+            // different player. That's intentional.
+            const projectedName = projection.projected_player_name || '—';
+            banner.innerHTML = `<strong>${projection.picks_between}</strong> pick${plural} until your next pick &mdash; Pick #${projection.next_pick_overall} (Round ${projection.next_pick_round}). Projected available: <strong>${projectedName}</strong>`;
         }
 
         if (typeof window.recomputeProjectedPickRow === 'function') {
