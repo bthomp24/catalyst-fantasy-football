@@ -41,7 +41,7 @@ Expects a `players` context variable (an iterable of Player instances).
         </div>
     </div>
 
-    <a class="text-white text-sm mb-1" href="{% url 'rankings' %}">Reset Filters</a>
+    <button type="button" id="resetFiltersBtn" class="reset-filters-link">Reset Filters</button>
 
     <div class="table-wrapper">
         <table class="table table-fixed">
@@ -170,6 +170,17 @@ Expects a `players` context variable (an iterable of Player instances).
     }
 
     filterTable();
+
+    // --- Reset Filters: clear search + re-check all position boxes,
+    // without reloading the page ---
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', function() {
+            document.getElementById('playerSearch').value = '';
+            positionCheckboxes.forEach(cb => cb.checked = true);
+            filterTable();
+        });
+    }
 
     // --- Sortable column headers (Board Rank / ESPN Rank comparison) ---
     const sortableHeaders = document.querySelectorAll('.sortable-header');

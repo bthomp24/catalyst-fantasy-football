@@ -200,6 +200,23 @@
   display:none;
 }
 
+.reset-filters-link {
+    display: inline-block;
+    background: none;
+    border: none;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0.25rem;
+    color: #fff;
+    font-size: 0.875rem;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+.reset-filters-link:hover {
+    text-decoration: underline;
+}
+
 .sortable-header {
     cursor: pointer;
     user-select: none;
